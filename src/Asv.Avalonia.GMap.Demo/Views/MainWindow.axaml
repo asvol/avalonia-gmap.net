@@ -1,0 +1,18 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Asv.Avalonia.GMap.Demo.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:gMap="clr-namespace:Asv.Avalonia.GMap;assembly=Asv.Avalonia.GMap"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="Asv.Avalonia.GMap.Demo.Views.MainWindow"
+        Icon="/Assets/avalonia-logo.ico"
+        Title="Asv.Avalonia.GMap.Demo">
+
+    <Design.DataContext>
+        <vm:MainWindowViewModel/>
+    </Design.DataContext>
+
+    <gMap:GMapControl Name="GMap" Zoom="13" MaxZoom="24" MinZoom="1" />
+
+</Window>
