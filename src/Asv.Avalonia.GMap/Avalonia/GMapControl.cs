@@ -468,7 +468,7 @@ namespace Asv.Avalonia.GMap
         /// <summary>
         ///     pen for empty tile background
         /// </summary>
-        public ISolidColorBrush EmptyTileBrush = Brushes.Navy;
+        public ISolidColorBrush EmptyTileBrush = Brushes.Transparent;
 
         /// <summary>
         ///     text on empty tiles
@@ -585,9 +585,9 @@ namespace Asv.Avalonia.GMap
         /// <summary>
         ///     current markers overlay offset
         /// </summary>
-        internal readonly TranslateTransform MapTranslateTransform = new TranslateTransform();
+        internal TranslateTransform MapTranslateTransform = new TranslateTransform();
 
-        internal readonly TranslateTransform MapOverlayTranslateTransform = new TranslateTransform();
+        internal TranslateTransform MapOverlayTranslateTransform = new TranslateTransform();
 
         internal ScaleTransform MapScaleTransform = new ScaleTransform();
         internal RotateTransform MapRotateTransform = new RotateTransform();
@@ -626,7 +626,7 @@ namespace Asv.Avalonia.GMap
 
         private static DataTemplate _dataTemplateInstance;
         private static ItemsPanelTemplate _itemsPanelTemplateInstance;
-        private static Style _styleInstance;
+        private Style _styleInstance;
 
         public GMapControl()
         {
@@ -657,7 +657,7 @@ namespace Asv.Avalonia.GMap
 
                 #endregion -- xaml --
 
-                _dataTemplateInstance ??= new DataTemplate()
+                _dataTemplateInstance = new DataTemplate()
                 {
                     Content = new ContentPresenter
                     {
@@ -667,7 +667,7 @@ namespace Asv.Avalonia.GMap
 
                 ItemTemplate = _dataTemplateInstance;
 
-                _itemsPanelTemplateInstance ??= new ItemsPanelTemplate
+                _itemsPanelTemplateInstance = new ItemsPanelTemplate
                 {
                     Content = _mapCanvas = new Canvas()
                 };
