@@ -5,18 +5,23 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Reactive.Disposables;
+using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Mixins;
 using Avalonia.Controls.Presenters;
 using Avalonia.Controls.Shapes;
 using Avalonia.Data;
 using Avalonia.Input;
+using Avalonia.LogicalTree;
 using Avalonia.Markup.Xaml.Templates;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Styling;
 using Avalonia.VisualTree;
+using ReactiveUI;
 
 namespace Asv.Avalonia.GMap
 {
@@ -27,6 +32,7 @@ namespace Asv.Avalonia.GMap
     {
         private const double MinimumHorizontalDragDistance = 3;
         private const double MinimumVerticalDragDistance = 3;
+        private CompositeDisposable _dispose = new CompositeDisposable();
 
         #region DependencyProperties and related stuff
 
@@ -611,7 +617,7 @@ namespace Asv.Avalonia.GMap
                     if (VisualChildren.Count > 0)
                     {
                         _mapCanvas = this.GetVisualDescendants().FirstOrDefault(w => w is Canvas) as Canvas;
-                        _mapCanvas.RenderTransform = MapTranslateTransform;
+                        if (_mapCanvas != null) _mapCanvas.RenderTransform = MapTranslateTransform;
                     }
                 }
 
@@ -657,37 +663,41 @@ namespace Asv.Avalonia.GMap
 
                 #endregion -- xaml --
 
-                _dataTemplateInstance = new DataTemplate()
-                {
-                    Content = new ContentPresenter
-                    {
-                        Content = new Binding("Shape")
-                    }
-                };
+                
 
-                ItemTemplate = _dataTemplateInstance;
+                // _dataTemplateInstance = new DataTemplate()
+                // {
+                //     Content = new ContentPresenter
+                //     {
+                //         Content = new Binding("Shape")
+                //     }
+                // };
+                //
+                // ItemTemplate = _dataTemplateInstance;
+                //
+                // _itemsPanelTemplateInstance = new ItemsPanelTemplate
+                // {
+                //     Content = _mapCanvas = new Canvas()
+                // };
+                //
+                // ItemsPanel = _itemsPanelTemplateInstance;
 
-                _itemsPanelTemplateInstance = new ItemsPanelTemplate
-                {
-                    Content = _mapCanvas = new Canvas()
-                };
+                // if (_styleInstance == null)
+                // {
+                //     _styleInstance = new Style();
+                //     {
+                //         _styleInstance.Setters.Add(new Setter(Canvas.LeftProperty, new Binding("LocalPositionX")));
+                //         _styleInstance.Setters.Add(new Setter(Canvas.TopProperty, new Binding("LocalPositionY")));
+                //         _styleInstance.Setters.Add(new Setter(Panel.ZIndexProperty, new Binding("ZIndex")));
+                //     }
+                // }
 
-                ItemsPanel = _itemsPanelTemplateInstance;
+                // if (!Styles.Contains(_styleInstance))
+                // {
+                //     Styles.Add(_styleInstance);
+                // }
 
-                if (_styleInstance == null)
-                {
-                    _styleInstance = new Style();
-                    {
-                        _styleInstance.Setters.Add(new Setter(Canvas.LeftProperty, new Binding("LocalPositionX")));
-                        _styleInstance.Setters.Add(new Setter(Canvas.TopProperty, new Binding("LocalPositionY")));
-                        _styleInstance.Setters.Add(new Setter(Panel.ZIndexProperty, new Binding("ZIndex")));
-                    }
-                }
-
-                if (!Styles.Contains(_styleInstance))
-                {
-                    Styles.Add(_styleInstance);
-                }
+                
 
                 #endregion -- templates --
 
@@ -701,7 +711,8 @@ namespace Asv.Avalonia.GMap
                 _core.SystemType = "WindowsPresentation";
 
                 _core.RenderMode = RenderMode.WPF;
-
+                this.PropertyChanged += GMapControl_PropertyChanged;
+                
                 _core.OnMapZoomChanged += ForceUpdateOverlays;
                 _core.OnCurrentPositionChanged += CoreOnCurrentPositionChanged;
                 //Dispatcher.ShutdownStarted += Dispatcher_ShutdownStarted;
@@ -714,6 +725,15 @@ namespace Asv.Avalonia.GMap
                 //TODO: find default value here
                 //_core.Zoom = (int)(double)ZoomProperty.DefaultMetadata.DefaultValue;
                 _core.Zoom = 10;
+            }
+            
+        }
+
+        private void GMapControl_PropertyChanged(object sender, AvaloniaPropertyChangedEventArgs e)
+        {
+            if (e.Property.Name == "Bounds")
+            {
+                _core.OnMapSizeChanged((int)this.Bounds.Width, (int)this.Bounds.Height);
             }
         }
 
@@ -843,22 +863,22 @@ namespace Asv.Avalonia.GMap
         /// <summary>
         ///     recalculates size
         /// </summary>
-        protected override Size MeasureOverride(Size availableSize)
-        {
-            _core.OnMapSizeChanged((int)availableSize.Width, (int)availableSize.Height);
-
-            if (_core.IsStarted)
-            {
-                if (IsRotated)
-                {
-                    UpdateRotationMatrix();
-                }
-
-                ForceUpdateOverlays();
-            }
-
-            return base.MeasureOverride(availableSize);
-        }
+        // protected override Size MeasureOverride(Size availableSize)
+        // {
+        //     _core.OnMapSizeChanged((int)availableSize.Width, (int)availableSize.Height);
+        //
+        //     if (_core.IsStarted)
+        //     {
+        //         if (IsRotated)
+        //         {
+        //             UpdateRotationMatrix();
+        //         }
+        //
+        //         ForceUpdateOverlays();
+        //     }
+        //
+        //     return base.MeasureOverride(availableSize);
+        // }
 
         private void ForceUpdateOverlays()
         {
@@ -962,6 +982,10 @@ namespace Asv.Avalonia.GMap
         /// <param name="g"></param>
         private void DrawMap(DrawingContext g)
         {
+            if (MapCanvas == null)
+            {
+                return;
+            }
             if (MapProvider == EmptyProvider.Instance || MapProvider == null)
             {
                 return;
@@ -2268,6 +2292,7 @@ namespace Asv.Avalonia.GMap
                 _core.OnMapZoomChanged -= ForceUpdateOverlays;
                 _core.OnMapClose();
             }
+            _dispose.Dispose();
         }
 
         #endregion IDisposable Members

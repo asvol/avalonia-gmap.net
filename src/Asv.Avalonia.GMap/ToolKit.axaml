@@ -1,0 +1,35 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:gMap="clr-namespace:Asv.Avalonia.GMap"
+        >
+    <Design.PreviewWith>
+        <StackPanel MinWidth="300">
+			<gMap:MapAnchor MinWidth="30" MinHeight="30" Title="Drone1" Icon="Navigation" Size="30"/>
+        </StackPanel>
+    </Design.PreviewWith>
+    <Style Selector="gMap|GMapControl > ContentPresenter">
+        <Setter Property="Canvas.Left" Value="{Binding LocalPositionX}"/>
+        <Setter Property="Canvas.Top" Value="{Binding LocalPositionY}"/>
+    </Style>
+    <Style Selector="gMap|GMapControl">
+        <Setter Property="ItemsPanel">
+            <ItemsPanelTemplate>
+                <Canvas Name="MapCanvas"/>
+            </ItemsPanelTemplate>
+        </Setter>
+        <Setter Property="ItemTemplate">
+            <DataTemplate DataType="gMap:GMapMarker">
+				<ContentPresenter Content="{Binding Shape}"/>
+			</DataTemplate>
+        </Setter>
+        <Setter Property="Template">
+            <ControlTemplate>
+				<ItemsPresenter Name="PART_ItemsPresenter"
+                                Items="{TemplateBinding Items}"
+                                ItemsPanel="{TemplateBinding ItemsPanel}"
+                                ItemTemplate="{TemplateBinding ItemTemplate}"/>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+    <StyleInclude Source="avares://Asv.Avalonia.GMap/MapAnchor.axaml"/>
+</Styles>
