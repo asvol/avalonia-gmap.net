@@ -6,22 +6,16 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Disposables;
-using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Controls.Mixins;
-using Avalonia.Controls.Presenters;
 using Avalonia.Controls.Shapes;
-using Avalonia.Data;
 using Avalonia.Input;
-using Avalonia.LogicalTree;
 using Avalonia.Markup.Xaml.Templates;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Styling;
 using Avalonia.VisualTree;
-using ReactiveUI;
 
 namespace Asv.Avalonia.GMap
 {
@@ -486,7 +480,7 @@ namespace Asv.Avalonia.GMap
         ///     map zooming type for mouse wheel
         /// </summary>
         [Category("GMap.NET")]
-        [Description("map zooming type for mouse wheel")]
+        [Description("map zooming type for mouse wheel")] 
         public MouseWheelZoomType MouseWheelZoomType
         {
             get { return _core.MouseWheelZoomType; }
@@ -745,7 +739,7 @@ namespace Asv.Avalonia.GMap
         static GMapControl()
         {
             GMapImageProxy.Enable();
-            GMaps.Instance.SQLitePing();
+            
         }
 
         private void InvalidatorEngage(object sender, ProgressChangedEventArgs e)

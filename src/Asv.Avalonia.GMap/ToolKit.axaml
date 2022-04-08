@@ -32,4 +32,6 @@
         </Setter>
     </Style>
     <StyleInclude Source="avares://Asv.Avalonia.GMap/MapAnchor.axaml"/>
+    <StyleInclude Source="avares://Asv.Avalonia.GMap/AvaloniaMapItem.axaml"/>
+    <StyleInclude Source="avares://Asv.Avalonia.GMap/AvaloniaMap.axaml"/>
 </Styles>

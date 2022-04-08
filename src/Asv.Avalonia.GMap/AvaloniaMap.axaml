@@ -1,0 +1,52 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="using:Asv.Avalonia.GMap">
+	<Design.PreviewWith>
+		<controls:AvaloniaMap  Width="300" Height="300">
+            <controls:MapAnchorViewModel Icon="Navigation" OffsetX="-15" OffsetY="-15" IsVisible="True" IsSelected="True" RotateAngle="45" Size="30" Title="Drone 1" />
+        </controls:AvaloniaMap>
+	</Design.PreviewWith>
+
+	<Style Selector="controls|AvaloniaMapItem">
+		<Setter Property="Canvas.Left" Value="{Binding $self.LocalPositionX}"/>
+        <Setter Property="Canvas.Top" Value="{Binding $self.LocalPositionY}"/>
+        <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
+        <Setter Property="IsVisible" Value="{Binding IsVisible, Mode=TwoWay}"/>
+        <Setter Property="Location" Value="{Binding Location, Mode=TwoWay}"/>
+        <Setter Property="OffsetX" Value="{Binding OffsetX, Mode=TwoWay}"/>
+        <Setter Property="OffsetY" Value="{Binding OffsetY, Mode=TwoWay}"/>
+	</Style>
+	<Style Selector="controls|AvaloniaMapItem:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource ThemeControlHighlightMidBrush}"/>
+    </Style>
+	<Style Selector="controls|AvaloniaMap">
+		<Setter Property="ItemsPanel">
+			<ItemsPanelTemplate>
+				<Canvas Name="MapCanvas"/>
+			</ItemsPanelTemplate>
+		</Setter>
+        <Setter Property="ItemTemplate" >
+			<DataTemplate x:DataType="controls:MapAnchorViewModel">
+                <controls:MapAnchor 
+					Icon="{CompiledBinding Icon}"
+					Title="{CompiledBinding Title}"
+					RotateCenterX="{CompiledBinding RotateCenterX}"
+                    RotateCenterY="{CompiledBinding RotateCenterY}"
+                    RotateAngle="{CompiledBinding RotateAngle}" 
+                    Size="{CompiledBinding Size}"/>
+            </DataTemplate>
+        </Setter>
+		<Setter Property="Template">
+			<ControlTemplate>
+				<Border >
+                    <ItemsPresenter Name="PART_ItemsPresenter"
+                                    Items="{TemplateBinding Items}"
+                                    ItemsPanel="{TemplateBinding ItemsPanel}"
+                                    ItemTemplate="{TemplateBinding ItemTemplate}"
+                                    Margin="{TemplateBinding Padding}"/>
+				</Border>
+
+			</ControlTemplate>
+		</Setter>
+	</Style>
+</Styles>

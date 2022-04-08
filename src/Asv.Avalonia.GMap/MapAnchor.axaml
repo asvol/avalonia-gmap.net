@@ -4,14 +4,15 @@
         xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
         >
   <Design.PreviewWith>
-    <controls:MapAnchor Icon="Navigation" Size="100" Title="Drone 1213123" RotateAngle="90" />
+    <controls:MapAnchor Icon="Navigation" Size="100" Title="Drone 1213123" RotateAngle="190" />
   </Design.PreviewWith>
 
     <Style Selector="controls|MapAnchor:pointerover /template/ TextBlock#PART_Title">
         <Setter Property="FontFamily" Value="Bold"/>
     </Style>
     <Style Selector="controls|MapAnchor:pointerover /template/ avalonia|MaterialIcon#PART_Icon">
-        <Setter Property="BorderThickness" Value="3"/>
+        <!-- <Setter Property="BorderThickness" Value="3"/> -->
+        
     </Style>
 
     <!-- <Style Selector="controls|MapAnchor /template/ TextBlock#PART_Title"> -->
@@ -22,21 +23,19 @@
     <!-- </Style> -->
 
 	<Style Selector="controls|MapAnchor">
-    <!-- Set Defaults -->
-    
-    <Setter Property="Template">
-      <ControlTemplate>
-		  <DockPanel>
-              <TextBlock Name="PART_Title" DockPanel.Dock="Bottom" HorizontalAlignment="Center" TextAlignment="Center" Margin="0,0,0,0" Text="{TemplateBinding Title}"/>
-              <Canvas Width="{TemplateBinding Size}" Height="{TemplateBinding Size}">
-                  <Canvas.RenderTransform>
-                      <RotateTransform CenterX="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=RotateCenterX}" CenterY="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=RotateCenterY}" Angle="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=RotateAngle}" />
-                  </Canvas.RenderTransform>
-                  <Rectangle Width="{TemplateBinding Size}" Height="{TemplateBinding Size}" Fill="Black" Opacity="0"/>
-                  <avalonia:MaterialIcon Name="PART_Icon" Width="{TemplateBinding Size}" Height="{TemplateBinding Size}" Kind="{TemplateBinding Icon}"/>
-              </Canvas>
-          </DockPanel>
-	  </ControlTemplate>
-    </Setter>
-  </Style>
+		<Setter Property="Template">
+			<ControlTemplate>
+				<DockPanel>
+					<TextBlock Name="PART_Title" DockPanel.Dock="Bottom" HorizontalAlignment="Center" TextAlignment="Center" Margin="0,0,0,0" Text="{TemplateBinding Title}"/>
+					<Canvas Width="{TemplateBinding Size}" Height="{TemplateBinding Size}">
+						<Canvas.RenderTransform>
+							<RotateTransform CenterX="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=RotateCenterX}" CenterY="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=RotateCenterY}" Angle="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=RotateAngle}" />
+						</Canvas.RenderTransform>
+						<Rectangle Width="{TemplateBinding Size}" Height="{TemplateBinding Size}" Fill="Black" Opacity="0"/>
+						<avalonia:MaterialIcon Name="PART_Icon" Foreground="Red" Width="{TemplateBinding Size}" Height="{TemplateBinding Size}" Kind="{TemplateBinding Icon}"/>
+					</Canvas>
+				</DockPanel>
+			</ControlTemplate>
+		</Setter>
+	</Style>
 </Styles>

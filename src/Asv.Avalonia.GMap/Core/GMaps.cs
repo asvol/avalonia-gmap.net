@@ -211,18 +211,7 @@ namespace Asv.Avalonia.GMap
             ServicePointManager.DefaultConnectionLimit = 5;
         }
 
-        /// <summary>
-        ///     triggers dynamic sqlite loading,
-        ///     call this before you use sqlite for other reasons than caching maps
-        /// </summary>
-        public void SQLitePing()
-        {
-#if SQLite
-#if !MONO
-            LiteDbCache.Instance.Ping();
-#endif
-#endif
-        }
+        
 
         #region -- Stuff --
 
