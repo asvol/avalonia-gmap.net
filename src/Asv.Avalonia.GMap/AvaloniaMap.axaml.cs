@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Disposables;
+using System.Reactive.Linq;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Generators;
@@ -13,6 +14,7 @@ using Avalonia.Input;
 using Avalonia.Media;
 using Avalonia.VisualTree;
 using Material.Icons;
+using Material.Icons.Avalonia;
 using ReactiveUI;
 
 namespace Asv.Avalonia.GMap
@@ -55,6 +57,15 @@ namespace Asv.Avalonia.GMap
 
         #region DialogMode
 
+        public static readonly DirectProperty<AvaloniaMap, PointLatLng> DialogTargetProperty =
+            AvaloniaProperty.RegisterDirect<AvaloniaMap, PointLatLng>(nameof(IsInDialogMode), o => o.DialogTarget, (o, v) => o.DialogTarget = v);
+        private PointLatLng _dialogTarget;
+        public PointLatLng DialogTarget
+        {
+            get => _dialogTarget;
+            set => SetAndRaise(DialogTargetProperty, ref _dialogTarget, value);
+        }
+
         public static readonly DirectProperty<AvaloniaMap, bool> IsInDialogModeProperty =
             AvaloniaProperty.RegisterDirect<AvaloniaMap, bool>(nameof(IsInDialogMode), o => o.IsInDialogMode, (o, v) => o.IsInDialogMode = v);
 
@@ -79,9 +90,13 @@ namespace Asv.Avalonia.GMap
             }
         }
 
+        private MaterialIcon _dialogItem;
+        private Cursor _oldCursor;
+
         private void DisableDialogMode()
         {
-            MapCanvas.Children.Remove(_dialogItem);
+            var oldItem = _dialogItem;
+            Observable.Timer(TimeSpan.FromSeconds(5)).ObserveOn(RxApp.MainThreadScheduler).Subscribe(_ => MapCanvas.Children.Remove(oldItem));
             foreach (var item in Items)
             {
                 if (item is MapAnchorViewModel anchor)
@@ -91,11 +106,6 @@ namespace Asv.Avalonia.GMap
             }
             Cursor = _oldCursor;
         }
-
-        private AvaloniaMapItem _dialogItem;
-        private Cursor _oldCursor;
-        private MapAnchor _dialogAnchor;
-
         private void EnableDialogMode()
         {
             foreach (var item in Items)
@@ -108,14 +118,12 @@ namespace Asv.Avalonia.GMap
             }
 
             _oldCursor = Cursor;
-            Cursor = new Cursor(StandardCursorType.No);
-            _dialogItem = new AvaloniaMapItem
+            Cursor = new Cursor(StandardCursorType.Hand);
+            _dialogItem = new MaterialIcon()
             {
-                Content = _dialogAnchor = new MapAnchor
-                {
-                    IsVisible = true,
-                    Icon = MaterialIconKind.Target,
-                }
+                Kind = MaterialIconKind.Target,
+                Width = 32,
+                Height = 32,
             };
             MapCanvas.Children.Add(_dialogItem);
         }
@@ -773,10 +781,12 @@ namespace Asv.Avalonia.GMap
             if (IsInDialogMode)
             {
                 var p = e.GetPosition(this);
-                var geo = FromLocalToLatLng((int)(p.X ), (int)(p.Y ));
-                _dialogItem.Location = geo;
-                _dialogAnchor.Title = geo.ToString();
-                return;
+                if (MapScaleTransform != null)
+                {
+                    p = MapScaleTransform.Inverse().Transform(p);
+                }
+                Canvas.SetLeft(_dialogItem, p.X - MapTranslateTransform.X - _dialogItem.Width / 2);
+                Canvas.SetTop(_dialogItem, p.Y - MapTranslateTransform.Y - _dialogItem.Width / 2);
             }
 
             base.OnPointerMoved(e);
@@ -858,8 +868,17 @@ namespace Asv.Avalonia.GMap
         {
             if (IsInDialogMode)
             {
-
                 IsInDialogMode = false;
+                var p = e.GetPosition(this);
+
+                if (MapScaleTransform != null)
+                {
+                    p = MapScaleTransform.Inverse().Transform(p);
+                }
+
+                
+                DialogTarget = FromLocalToLatLng((int)(p.X - MapTranslateTransform.X - _dialogItem.Width / 2), (int)(p.Y - MapTranslateTransform.Y - _dialogItem.Width / 2));
+                return;
             }
 
 
