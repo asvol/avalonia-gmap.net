@@ -1,13 +1,21 @@
+using System.Collections;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.ReactiveUI;
 using Material.Icons;
+using ReactiveUI;
 
 namespace Asv.Avalonia.GMap
 {
     public class MapAnchor : TemplatedControl
     {
+        public MapAnchor()
+        {
+            
+        }
+
+
         public static readonly StyledProperty<string> TitleProperty = AvaloniaProperty.Register<MapAnchor, string>(nameof(Title));
         public string Title
         {
@@ -20,6 +28,13 @@ namespace Asv.Avalonia.GMap
         {
             get => (MaterialIconKind)GetValue(IconProperty);
             set => SetValue(IconProperty, value);
+        }
+
+        public static readonly StyledProperty<bool> IsSelectedProperty = AvaloniaProperty.Register<MapAnchor, bool>(nameof(IsSelected));
+        public bool IsSelected
+        {
+            get => GetValue(IsSelectedProperty);
+            set => SetValue(IsSelectedProperty, value);
         }
 
         public static readonly StyledProperty<double> RotateCenterXProperty = AvaloniaProperty.Register<MapAnchor, double>(nameof(RotateCenterX));
@@ -50,7 +65,25 @@ namespace Asv.Avalonia.GMap
             set => SetValue(SizeProperty, value);
         }
 
+        public static readonly DirectProperty<MapAnchor, string> DescriptionProperty =
+            AvaloniaProperty.RegisterDirect<MapAnchor, string>(nameof(MapAnchor.Description), o => o.Description, (o, v) => o.Description = v);
 
+        private string _description;
+        public string Description
+        {
+            get => _description;
+            set => SetAndRaise(DescriptionProperty, ref _description, value);
+        }
 
+       
+        public static readonly DirectProperty<MapAnchor, IEnumerable> ActionsProperty =
+            AvaloniaProperty.RegisterDirect<MapAnchor, IEnumerable>(nameof(Actions), o => o.Actions, (o, v) => o.Actions = v);
+
+        private IEnumerable _actions;
+        public IEnumerable Actions
+        {
+            get => _actions;
+            set => SetAndRaise(ActionsProperty, ref _actions, value);
+        }
     }
 }

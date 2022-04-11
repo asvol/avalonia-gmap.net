@@ -12,14 +12,15 @@ using Avalonia.Controls.Selection;
 using Avalonia.Input;
 using Avalonia.Media;
 using Avalonia.VisualTree;
+using Material.Icons;
 using ReactiveUI;
 
 namespace Asv.Avalonia.GMap
 {
     public class AvaloniaMap : SelectingItemsControl, IDisposable
     {
-        private const double MinimumHorizontalDragDistance = 3;
-        private const double MinimumVerticalDragDistance = 3;
+        private const double MinimumHorizontalDragDistance = 10;
+        private const double MinimumVerticalDragDistance = 10;
         private readonly CompositeDisposable _dispose = new();
         internal readonly TranslateTransform MapTranslateTransform = new();
         internal readonly TranslateTransform MapOverlayTranslateTransform = new();
@@ -39,14 +40,87 @@ namespace Asv.Avalonia.GMap
             _core.RenderMode = RenderMode.WPF;
             Position = new PointLatLng(55.1644, 61.4368);
             MapProvider = GMapProviders.BingHybridMap;
-            Zoom = 1;
+            Zoom = _core.MaxZoom;
             MinZoom = _core.MinZoom;
             MaxZoom = _core.MaxZoom;
             _core.OnMapZoomChanged += ForceUpdateOverlays;
             _core.OnCurrentPositionChanged += point => Position = point;
-            this.WhenAnyValue(_ => _.Bounds).Subscribe(_ => _core.OnMapSizeChanged((int)_.Width, (int)_.Height));
+            this.WhenAnyValue(_ => _.Bounds).Subscribe(_ =>
+            {
+                _core.OnMapSizeChanged((int)_.Width, (int)_.Height);
+                UpdateZoom();
+            });
             
         }
+
+        #region DialogMode
+
+        public static readonly DirectProperty<AvaloniaMap, bool> IsInDialogModeProperty =
+            AvaloniaProperty.RegisterDirect<AvaloniaMap, bool>(nameof(IsInDialogMode), o => o.IsInDialogMode, (o, v) => o.IsInDialogMode = v);
+
+        private bool _isInDialogMode;
+        public bool IsInDialogMode
+        {
+            get => _isInDialogMode;
+            set
+            {
+                if (SetAndRaise(IsInDialogModeProperty, ref _isInDialogMode, value))
+                {
+                    if (value)
+                    {
+                        EnableDialogMode();
+                    }
+                    else
+                    {
+                        DisableDialogMode();
+                    }
+                    
+                };
+            }
+        }
+
+        private void DisableDialogMode()
+        {
+            MapCanvas.Children.Remove(_dialogItem);
+            foreach (var item in Items)
+            {
+                if (item is MapAnchorViewModel anchor)
+                {
+                    anchor.IsVisible = true;
+                }
+            }
+            Cursor = _oldCursor;
+        }
+
+        private AvaloniaMapItem _dialogItem;
+        private Cursor _oldCursor;
+        private MapAnchor _dialogAnchor;
+
+        private void EnableDialogMode()
+        {
+            foreach (var item in Items)
+            {
+                if (item is MapAnchorViewModel anchor)
+                {
+                    if (anchor.IsSelected == false)
+                        anchor.IsVisible = false;
+                }
+            }
+
+            _oldCursor = Cursor;
+            Cursor = new Cursor(StandardCursorType.No);
+            _dialogItem = new AvaloniaMapItem
+            {
+                Content = _dialogAnchor = new MapAnchor
+                {
+                    IsVisible = true,
+                    Icon = MaterialIconKind.Target,
+                }
+            };
+            MapCanvas.Children.Add(_dialogItem);
+        }
+
+        #endregion
 
         #region Render
 
@@ -388,7 +462,7 @@ namespace Asv.Avalonia.GMap
         public static readonly DirectProperty<AvaloniaMap, ScaleModes> ScaleModeProperty =
             AvaloniaProperty.RegisterDirect<AvaloniaMap, ScaleModes>(nameof(ScaleMode), o => o.ScaleMode, (o, v) => o.ScaleMode = v);
 
-        private ScaleModes _scaleMode;
+        private ScaleModes _scaleMode = ScaleModes.Dynamic;
         public ScaleModes ScaleMode
         {
             get => _scaleMode;
@@ -689,8 +763,6 @@ namespace Asv.Avalonia.GMap
         /// </summary>
         public RectLatLng? BoundsOfMap { get; }
 
-        
-
         private ulong _onMouseUpTimestamp;
         private Cursor _cursorBefore = Cursor.Default;
         
@@ -698,6 +770,15 @@ namespace Asv.Avalonia.GMap
 
         protected override void OnPointerMoved(PointerEventArgs e)
         {
+            if (IsInDialogMode)
+            {
+                var p = e.GetPosition(this);
+                var geo = FromLocalToLatLng((int)(p.X ), (int)(p.Y ));
+                _dialogItem.Location = geo;
+                _dialogAnchor.Title = geo.ToString();
+                return;
+            }
+
             base.OnPointerMoved(e);
 
             // wpf generates to many events if mouse is over some visual
@@ -775,6 +856,13 @@ namespace Asv.Avalonia.GMap
 
         protected override void OnPointerReleased(PointerReleasedEventArgs e)
         {
+            if (IsInDialogMode)
+            {
+
+                IsInDialogMode = false;
+            }
+
+
             base.OnPointerReleased(e);
 
             if (_core.IsDragging)
@@ -801,6 +889,8 @@ namespace Asv.Avalonia.GMap
             
         }
 
+
+
         protected override void OnPointerPressed(PointerPressedEventArgs e)
         {
             base.OnPointerPressed(e);
@@ -817,21 +907,25 @@ namespace Asv.Avalonia.GMap
 
             InvalidateVisual();
 
-            //
-            // if (e.Source is IVisual source)
-            // {
-            //     var point = e.GetCurrentPoint(source);
-            //
-            //     if (point.Properties.IsLeftButtonPressed || point.Properties.IsRightButtonPressed)
-            //     {
-            //         e.Handled = UpdateSelectionFromEventSource(
-            //             e.Source,
-            //             true,
-            //             e.KeyModifiers.HasAllFlags(KeyModifiers.Shift),
-            //             e.KeyModifiers.HasAllFlags(KeyModifiers.Control),
-            //             point.Properties.IsRightButtonPressed);
-            //     }
-            // }
+            
+            if (e.Source is IVisual source)
+            {
+                var point = e.GetCurrentPoint(source);
+            
+                if (point.Properties.IsLeftButtonPressed || point.Properties.IsRightButtonPressed)
+                {
+                    e.Handled = UpdateSelectionFromEventSource(
+                        e.Source,
+                        true,
+                        e.KeyModifiers.HasAllFlags(KeyModifiers.Shift),
+                        e.KeyModifiers.HasAllFlags(KeyModifiers.Control),
+                        point.Properties.IsRightButtonPressed);
+                    if (e.Handled == false)
+                    {
+                        UnselectAll();
+                    }
+                }
+            }
         }
 
         #endregion

@@ -1,42 +1,49 @@
 <Styles xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:gMap="clr-namespace:Asv.Avalonia.GMap">
+        xmlns:gMap="clr-namespace:Asv.Avalonia.GMap"
+        xmlns:styles="clr-namespace:Material.Styles;assembly=Material.Styles">
 	<Design.PreviewWith>
-		<gMap:AvaloniaMapItem Width="100" Height="100">
-			<TextBlock Text="asdasd"/>
+		<gMap:AvaloniaMapItem IsSelected="True" Width="200" Height="200">
+            Text
 		</gMap:AvaloniaMapItem>
 	</Design.PreviewWith>
-	<Style Selector="gMap|AvaloniaMapItem:pointerover /template/ ContentPresenter">
-		<Setter Property="Background" Value="Red"/>
-	</Style>
-    <Style Selector="gMap|AvaloniaMapItem:selected /template/ ContentPresenter">
-        <Setter Property="Background" Value="Blue"/>
+    <Style Selector="gMap|AvaloniaMapItem:pointerover /template/ ContentPresenter">
+        <Setter Property="ZIndex" Value="10000"></Setter>
     </Style>
-    <Style Selector="gMap|AvaloniaMapItem:selected:focus /template/ ContentPresenter">
-        <Setter Property="Background" Value="{DynamicResource ThemeAccentBrush3}"/>
+    <Style Selector="gMap|AvaloniaMapItem /template/ ContentPresenter">
+        <Setter Property="ZIndex" Value="0"></Setter>
     </Style>
-
-    <Style Selector="gMap|AvaloniaMapItem:selected:pointerover /template/ ContentPresenter">
-        <Setter Property="Background" Value="{DynamicResource ThemeAccentBrush3}"/>
-    </Style>
-
-    <Style Selector="gMap|AvaloniaMapItem:selected:focus:pointerover /template/ ContentPresenter">
-        <Setter Property="Background" Value="{DynamicResource ThemeAccentBrush2}"/>
-    </Style>
+	<!-- <Style Selector="gMap|AvaloniaMapItem:pointerover /template/ ContentPresenter"> -->
+	<!-- 	<Setter Property="Background" Value="Red"/> -->
+	<!-- </Style> -->
+ <!--    <Style Selector="gMap|AvaloniaMapItem:selected /template/ ContentPresenter"> -->
+ <!--        <Setter Property="Background" Value="Blue"/> -->
+ <!--    </Style> -->
+ <!--    <Style Selector="gMap|AvaloniaMapItem:selected:focus /template/ ContentPresenter"> -->
+ <!--        <Setter Property="Background" Value="{DynamicResource ThemeAccentBrush3}"/> -->
+ <!--    </Style> -->
+ <!-- -->
+ <!--    <Style Selector="gMap|AvaloniaMapItem:selected:pointerover /template/ ContentPresenter"> -->
+ <!--        <Setter Property="Background" Value="{DynamicResource ThemeAccentBrush3}"/> -->
+ <!--    </Style> -->
+ <!-- -->
+ <!--    <Style Selector="gMap|AvaloniaMapItem:selected:focus:pointerover /template/ ContentPresenter"> -->
+ <!--        <Setter Property="Background" Value="{DynamicResource ThemeAccentBrush2}"/> -->
+ <!--    </Style> -->
 	<Style Selector="gMap|AvaloniaMapItem">
 		<!-- Set Defaults -->
 		<Setter Property="Template">
 			<ControlTemplate>
-				<ContentPresenter Name="PART_ContentPresenter"
-								  Background="{TemplateBinding Background}"
-								  BorderBrush="{TemplateBinding BorderBrush}"
-								  BorderThickness="{TemplateBinding BorderThickness}"
-								  CornerRadius="{TemplateBinding CornerRadius}"
-								  ContentTemplate="{TemplateBinding ContentTemplate}"
-								  Content="{TemplateBinding Content}"
-								  Padding="{TemplateBinding Padding}"
-								  VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
-								  HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}" />
+                <ContentPresenter Name="PART_ContentPresenter"
+                                  Background="{TemplateBinding Background}"
+                                  BorderBrush="{TemplateBinding BorderBrush}"
+                                  BorderThickness="{TemplateBinding BorderThickness}"
+                                  CornerRadius="{TemplateBinding CornerRadius}"
+                                  ContentTemplate="{TemplateBinding ContentTemplate}"
+                                  Content="{TemplateBinding Content}"
+                                  Padding="{TemplateBinding Padding}"
+                                  VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                                  HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}" />
 			</ControlTemplate>
 		</Setter>
 	</Style>

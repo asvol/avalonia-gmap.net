@@ -7,6 +7,7 @@ using Avalonia.Controls.Mixins;
 using Avalonia.Controls.Primitives;
 using Avalonia.ReactiveUI;
 using Avalonia.VisualTree;
+using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 
 namespace Asv.Avalonia.GMap
@@ -32,7 +33,7 @@ namespace Asv.Avalonia.GMap
 
         #region Drag
 
-        
+
         #endregion
 
         private AvaloniaMap _map;
@@ -140,10 +141,19 @@ namespace Asv.Avalonia.GMap
         #endregion
 
         public static readonly StyledProperty<bool> IsSelectedProperty = AvaloniaProperty.Register<AvaloniaMapItem, bool>(nameof(IsSelected));
+
+        private string _description;
+
         public bool IsSelected
         {
             get => GetValue(IsSelectedProperty);
             set => SetValue(IsSelectedProperty, value);
+        }
+
+        public string Description
+        {
+            get => _description;
+            set => SetAndRaise(MapAnchor.DescriptionProperty, ref _description, value);
         }
 
         public void Dispose()

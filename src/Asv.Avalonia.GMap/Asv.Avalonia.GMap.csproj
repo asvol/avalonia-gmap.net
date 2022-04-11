@@ -20,6 +20,9 @@
     <Reference Include="Material.Icons.Avalonia">
       <HintPath>..\..\..\..\..\..\Users\voloshkevich\.nuget\packages\material.icons.avalonia\1.0.2\lib\netstandard2.0\Material.Icons.Avalonia.dll</HintPath>
     </Reference>
+    <Reference Include="Material.Styles">
+      <HintPath>..\..\..\..\..\..\Users\voloshkevich\.nuget\packages\material.avalonia\3.0.0-rc0.83-nightly\lib\netstandard2.0\Material.Styles.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>

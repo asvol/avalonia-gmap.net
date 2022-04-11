@@ -33,18 +33,20 @@
 					RotateCenterX="{CompiledBinding RotateCenterX}"
                     RotateCenterY="{CompiledBinding RotateCenterY}"
                     RotateAngle="{CompiledBinding RotateAngle}" 
-                    Size="{CompiledBinding Size}"/>
+                    Size="{CompiledBinding Size}"
+                    Actions="{CompiledBinding Actions}"
+                    Description="{CompiledBinding Description}"/>
             </DataTemplate>
         </Setter>
 		<Setter Property="Template">
 			<ControlTemplate>
-				<Border >
+				<Grid Name="PART_MapRoot">
                     <ItemsPresenter Name="PART_ItemsPresenter"
                                     Items="{TemplateBinding Items}"
                                     ItemsPanel="{TemplateBinding ItemsPanel}"
                                     ItemTemplate="{TemplateBinding ItemTemplate}"
                                     Margin="{TemplateBinding Padding}"/>
-				</Border>
+				</Grid>
 
 			</ControlTemplate>
 		</Setter>
