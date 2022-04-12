@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
@@ -75,18 +76,22 @@ namespace Asv.Avalonia.GMap
             get => _isInDialogMode;
             set
             {
-                if (SetAndRaise(IsInDialogModeProperty, ref _isInDialogMode, value))
+                if (EqualityComparer<bool>.Default.Equals(_isInDialogMode, value))
                 {
-                    if (value)
-                    {
-                        EnableDialogMode();
-                    }
-                    else
-                    {
-                        DisableDialogMode();
-                    }
-                    
-                };
+                    return;
+                }
+                _isInDialogMode = value;
+                if (value)
+                {
+                    EnableDialogMode();
+                }
+                else
+                {
+                    DisableDialogMode();
+                }
+                var old = _isInDialogMode;
+                _isInDialogMode = value;
+                RaisePropertyChanged(IsInDialogModeProperty,old,value);
             }
         }
 
@@ -104,6 +109,7 @@ namespace Asv.Avalonia.GMap
                     anchor.IsVisible = true;
                 }
             }
+            
             Cursor = _oldCursor;
         }
         private void EnableDialogMode()
@@ -866,20 +872,7 @@ namespace Asv.Avalonia.GMap
 
         protected override void OnPointerReleased(PointerReleasedEventArgs e)
         {
-            if (IsInDialogMode)
-            {
-                IsInDialogMode = false;
-                var p = e.GetPosition(this);
-
-                if (MapScaleTransform != null)
-                {
-                    p = MapScaleTransform.Inverse().Transform(p);
-                }
-
-                
-                DialogTarget = FromLocalToLatLng((int)(p.X - MapTranslateTransform.X - _dialogItem.Width / 2), (int)(p.Y - MapTranslateTransform.Y - _dialogItem.Width / 2));
-                return;
-            }
+            
 
 
             base.OnPointerReleased(e);
@@ -912,6 +905,21 @@ namespace Asv.Avalonia.GMap
 
         protected override void OnPointerPressed(PointerPressedEventArgs e)
         {
+            if (IsInDialogMode)
+            {
+
+                var point = e.GetPosition(this);
+
+                if (MapScaleTransform != null)
+                {
+                    point = MapScaleTransform.Inverse().Transform(point);
+                }
+                DialogTarget = FromLocalToLatLng((int)(point.X), (int)(point.Y));
+                IsInDialogMode = false;
+                return;
+            }
+
+
             base.OnPointerPressed(e);
 
             var p = e.GetPosition(this);
