@@ -33,9 +33,9 @@ namespace Asv.Avalonia.GMap
         public double RotateCenterY { get; set; }
 
         [Reactive]
-        public double OffsetX { get; set; }
+        public OffsetXEnum OffsetX { get; set; }
         [Reactive]
-        public double OffsetY { get; set; }
+        public OffsetYEnum OffsetY { get; set; }
 
         [Reactive]
         public bool IsSelected { get; set; }

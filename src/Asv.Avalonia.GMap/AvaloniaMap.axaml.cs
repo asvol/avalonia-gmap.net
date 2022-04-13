@@ -56,85 +56,7 @@ namespace Asv.Avalonia.GMap
             
         }
 
-        #region DialogMode
-
-        public static readonly DirectProperty<AvaloniaMap, PointLatLng> DialogTargetProperty =
-            AvaloniaProperty.RegisterDirect<AvaloniaMap, PointLatLng>(nameof(IsInDialogMode), o => o.DialogTarget, (o, v) => o.DialogTarget = v);
-        private PointLatLng _dialogTarget;
-        public PointLatLng DialogTarget
-        {
-            get => _dialogTarget;
-            set => SetAndRaise(DialogTargetProperty, ref _dialogTarget, value);
-        }
-
-        public static readonly DirectProperty<AvaloniaMap, bool> IsInDialogModeProperty =
-            AvaloniaProperty.RegisterDirect<AvaloniaMap, bool>(nameof(IsInDialogMode), o => o.IsInDialogMode, (o, v) => o.IsInDialogMode = v);
-
-        private bool _isInDialogMode;
-        public bool IsInDialogMode
-        {
-            get => _isInDialogMode;
-            set
-            {
-                if (EqualityComparer<bool>.Default.Equals(_isInDialogMode, value))
-                {
-                    return;
-                }
-                _isInDialogMode = value;
-                if (value)
-                {
-                    EnableDialogMode();
-                }
-                else
-                {
-                    DisableDialogMode();
-                }
-                var old = _isInDialogMode;
-                _isInDialogMode = value;
-                RaisePropertyChanged(IsInDialogModeProperty,old,value);
-            }
-        }
-
-        private MaterialIcon _dialogItem;
-        private Cursor _oldCursor;
-
-        private void DisableDialogMode()
-        {
-            var oldItem = _dialogItem;
-            Observable.Timer(TimeSpan.FromSeconds(5)).ObserveOn(RxApp.MainThreadScheduler).Subscribe(_ => MapCanvas.Children.Remove(oldItem));
-            foreach (var item in Items)
-            {
-                if (item is MapAnchorViewModel anchor)
-                {
-                    anchor.IsVisible = true;
-                }
-            }
-            
-            Cursor = _oldCursor;
-        }
-        private void EnableDialogMode()
-        {
-            foreach (var item in Items)
-            {
-                if (item is MapAnchorViewModel anchor)
-                {
-                    if (anchor.IsSelected == false)
-                        anchor.IsVisible = false;
-                }
-            }
-
-            _oldCursor = Cursor;
-            Cursor = new Cursor(StandardCursorType.Hand);
-            _dialogItem = new MaterialIcon()
-            {
-                Kind = MaterialIconKind.Target,
-                Width = 32,
-                Height = 32,
-            };
-            MapCanvas.Children.Add(_dialogItem);
-        }
-
-        #endregion
+        
 
         #region Render
 
@@ -791,8 +713,8 @@ namespace Asv.Avalonia.GMap
                 {
                     p = MapScaleTransform.Inverse().Transform(p);
                 }
-                Canvas.SetLeft(_dialogItem, p.X - MapTranslateTransform.X - _dialogItem.Width / 2);
-                Canvas.SetTop(_dialogItem, p.Y - MapTranslateTransform.Y - _dialogItem.Width / 2);
+                Canvas.SetLeft(_dialogItem, p.X - MapTranslateTransform.X - _dialogItem.Bounds.Width / 2);
+                Canvas.SetTop(_dialogItem, p.Y - MapTranslateTransform.Y - _dialogItem.Bounds.Height / 2);
             }
 
             base.OnPointerMoved(e);
@@ -907,7 +829,6 @@ namespace Asv.Avalonia.GMap
         {
             if (IsInDialogMode)
             {
-
                 var point = e.GetPosition(this);
 
                 if (MapScaleTransform != null)
@@ -953,6 +874,77 @@ namespace Asv.Avalonia.GMap
                     }
                 }
             }
+        }
+
+        #endregion
+
+        #region DialogMode
+
+        public static readonly DirectProperty<AvaloniaMap, PointLatLng> DialogTargetProperty =
+            AvaloniaProperty.RegisterDirect<AvaloniaMap, PointLatLng>(nameof(IsInDialogMode), o => o.DialogTarget, (o, v) => o.DialogTarget = v);
+        private PointLatLng _dialogTarget;
+        public PointLatLng DialogTarget
+        {
+            get => _dialogTarget;
+            set => SetAndRaise(DialogTargetProperty, ref _dialogTarget, value);
+        }
+
+        public static readonly DirectProperty<AvaloniaMap, bool> IsInDialogModeProperty =
+            AvaloniaProperty.RegisterDirect<AvaloniaMap, bool>(nameof(IsInDialogMode), o => o.IsInDialogMode, (o, v) => o.IsInDialogMode = v);
+
+        private bool _isInDialogMode;
+        public bool IsInDialogMode
+        {
+            get => _isInDialogMode;
+            set
+            {
+                if (EqualityComparer<bool>.Default.Equals(_isInDialogMode, value))
+                {
+                    return;
+                }
+                _isInDialogMode = value;
+                if (value)
+                {
+                    EnableDialogMode();
+                }
+                else
+                {
+                    DisableDialogMode();
+                }
+                var old = _isInDialogMode;
+                _isInDialogMode = value;
+                RaisePropertyChanged(IsInDialogModeProperty, old, value);
+            }
+        }
+
+        private MaterialIcon _dialogItem;
+        private Cursor _oldCursor;
+
+        private void DisableDialogMode()
+        {
+            var oldItem = _dialogItem;
+            MapCanvas.Children.Remove(oldItem);
+            foreach (var item in Items)
+            {
+                if (item is MapAnchorViewModel anchor)
+                {
+                    anchor.IsVisible = true;
+                }
+            }
+
+            Cursor = _oldCursor;
+        }
+        private void EnableDialogMode()
+        {
+            _oldCursor = Cursor;
+            Cursor = new Cursor(StandardCursorType.Hand);
+            _dialogItem = new MaterialIcon()
+            {
+                Kind = MaterialIconKind.Target,
+                Width = 32,
+                Height = 32,
+            };
+            MapCanvas.Children.Add(_dialogItem);
         }
 
         #endregion

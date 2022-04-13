@@ -5,15 +5,28 @@ using Avalonia.Controls;
 using Avalonia.Controls.Metadata;
 using Avalonia.Controls.Mixins;
 using Avalonia.Controls.Primitives;
-using Avalonia.ReactiveUI;
-using Avalonia.VisualTree;
+using Material.Styles.Enums;
 using ReactiveUI;
-using ReactiveUI.Fody.Helpers;
+
 
 namespace Asv.Avalonia.GMap
 {
+    public enum OffsetXEnum
+    {
+        Left,
+        Center,
+        Right
+    }
+
+    public enum OffsetYEnum
+    {
+        Top,
+        Center,
+        Bottom
+    }
+
     [PseudoClasses(":pressed", ":selected")]
-    public class AvaloniaMapItem : ContentControl,ISelectable,IDisposable
+    public class AvaloniaMapItem : ContentControl,ISelectable,IDisposable,IActivatableView
     {
         private readonly CompositeDisposable _dispose = new();
 
@@ -29,6 +42,10 @@ namespace Asv.Avalonia.GMap
         {
             _dispose.Add(this.Events().PointerEnter.Subscribe(_ => ZIndex += 10000));
             _dispose.Add(this.Events().PointerLeave.Subscribe(_ => ZIndex -= 10000));
+            this.WhenActivated(disp =>
+            {
+                DisposableMixin.DisposeWith(this.WhenAnyValue(_ => _.Bounds).Subscribe(_=> UpdateLocalPosition()), disp);
+            });
         }
 
         #region Drag
@@ -80,9 +97,23 @@ namespace Asv.Avalonia.GMap
         {
             if (Map == null) return;
             var point = Map.FromLatLngToLocal(Location);
-            point.Offset(-(long)Map.MapTranslateTransform.X, -(long)Map.MapTranslateTransform.Y);
-            LocalPositionX = (int)(point.X + (long)OffsetX);
-            LocalPositionY = (int)(point.Y + (long)OffsetY);
+            var offsetX = OffsetX switch
+            {
+                OffsetXEnum.Left => 0,
+                OffsetXEnum.Center => Bounds.Width / 2,
+                OffsetXEnum.Right => Bounds.Width,
+                _ => throw new ArgumentOutOfRangeException()
+            };
+            var offsetY = OffsetY switch
+            {
+                OffsetYEnum.Top => 0,
+                OffsetYEnum.Center => Bounds.Height / 2,
+                OffsetYEnum.Bottom => Bounds.Height,
+                _ => throw new ArgumentOutOfRangeException()
+            };
+            point.Offset(-(long)(Map.MapTranslateTransform.X + offsetX), -(long)(Map.MapTranslateTransform.Y + offsetY));
+            LocalPositionX = (int)(point.X);
+            LocalPositionY = (int)(point.Y);
         }
 
         #endregion
@@ -108,14 +139,16 @@ namespace Asv.Avalonia.GMap
 
         #region Offset
 
-        public static readonly DirectProperty<AvaloniaMapItem, double> OffsetXProperty =
-            AvaloniaProperty.RegisterDirect<AvaloniaMapItem, double>(nameof(OffsetX), o => o.OffsetX, (o, v) => o.OffsetX = v);
-        private double _offsetX;
-        public double OffsetX
+        public static readonly DirectProperty<AvaloniaMapItem, OffsetXEnum> OffsetXProperty =
+            AvaloniaProperty.RegisterDirect<AvaloniaMapItem, OffsetXEnum>(nameof(OffsetX), o => o.OffsetX, (o, v) => o.OffsetX = v);
+        private OffsetXEnum _offsetX;
+        public OffsetXEnum OffsetX
         {
             get => _offsetX;
             set
             {
+
+                
                 if (SetAndRaise(OffsetXProperty, ref _offsetX, value))
                 {
                     UpdateLocalPosition();
@@ -123,10 +156,10 @@ namespace Asv.Avalonia.GMap
             }
         }
 
-        public static readonly DirectProperty<AvaloniaMapItem, double> OffsetYProperty =
-            AvaloniaProperty.RegisterDirect<AvaloniaMapItem, double>(nameof(OffsetY), o => o.OffsetY, (o, v) => o.OffsetY = v);
-        private double _offsetY;
-        public double OffsetY
+        public static readonly DirectProperty<AvaloniaMapItem, OffsetYEnum> OffsetYProperty =
+            AvaloniaProperty.RegisterDirect<AvaloniaMapItem, OffsetYEnum>(nameof(OffsetY), o => o.OffsetY, (o, v) => o.OffsetY = v);
+        private OffsetYEnum _offsetY;
+        public OffsetYEnum OffsetY
         {
             get => _offsetY;
             set

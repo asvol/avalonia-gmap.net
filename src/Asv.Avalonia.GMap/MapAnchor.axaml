@@ -4,7 +4,7 @@
         xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
         xmlns:styles="clr-namespace:Material.Styles;assembly=Material.Styles">
   <Design.PreviewWith>
-    <controls:MapAnchor Icon="Navigation" Size="100" Title="Drone 1213123" RotateAngle="190" />
+    <controls:MapAnchor Icon="Navigation" Size="100" Title="Drone 1213123" RotateAngle="0" />
   </Design.PreviewWith>
 
     <Style Selector="controls|MapAnchor">
@@ -28,16 +28,16 @@
         <Setter Property="Template">
 			<ControlTemplate>
                 <Grid>
-                    <DockPanel Name="PART_ContentPresenter">
-                        <TextBlock Name="PART_Title" DockPanel.Dock="Bottom" HorizontalAlignment="Center" TextAlignment="Center" Margin="0,0,0,0" Text="{TemplateBinding Title}"/>
-                        <Canvas Width="{TemplateBinding Size}" Height="{TemplateBinding Size}">
+                    <Grid Name="PART_ContentPresenter" RowDefinitions="16,*,16">
+                        <TextBlock Grid.Row="2" Name="PART_Title" DockPanel.Dock="Bottom" HorizontalAlignment="Center" TextAlignment="Center" Margin="0,0,0,0" Text="{TemplateBinding Title}"/>
+                        <Canvas HorizontalAlignment="Center" Grid.Row="1" Width="{TemplateBinding Size}" Height="{TemplateBinding Size}">
                             <Canvas.RenderTransform>
                                 <RotateTransform CenterX="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=RotateCenterX}" CenterY="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=RotateCenterY}" Angle="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=RotateAngle}" />
                             </Canvas.RenderTransform>
                             <Rectangle Width="{TemplateBinding Size}" Height="{TemplateBinding Size}" Fill="Black" Opacity="0"/>
                             <avalonia:MaterialIcon BorderBrush="Green" Name="PART_Icon" Foreground="Red" Width="{TemplateBinding Size}" Height="{TemplateBinding Size}" Kind="{TemplateBinding Icon}"/>
                         </Canvas>
-                    </DockPanel>
+                    </Grid>
 					<Popup
                         IsOpen="{TemplateBinding IsSelected}"
                         PlacementTarget="PART_ContentPresenter"
