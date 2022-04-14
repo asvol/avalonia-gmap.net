@@ -14,7 +14,5 @@
     <StyleInclude Source="avares://Asv.Avalonia.GMap/MapViewItem.axaml"/>
     <StyleInclude Source="avares://Asv.Avalonia.GMap/MapPolygon.axaml"/>
     <StyleInclude Source="avares://Asv.Avalonia.GMap/MapAnchorView.axaml"/>
-    <StyleInclude Source="avares://Asv.Avalonia.GMap/AvaloniaMapItem.axaml"/>
-    <StyleInclude Source="avares://Asv.Avalonia.GMap/AvaloniaMap.axaml"/>
 
 </Styles>

@@ -1,5 +1,4 @@
 ﻿using System.Collections.ObjectModel;
-using Avalonia;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 

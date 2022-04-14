@@ -7,10 +7,7 @@
     <controls:MapAnchorView Icon="Navigation" Size="100" Title="Drone 1213123" RotateAngle="0" />
   </Design.PreviewWith>
 
-    <Style Selector="controls|MapAnchorView">
-		<Setter Property="IsSelected" Value="{Binding IsSelected}"/>
-    </Style>
-		   
+    
 	<Style Selector="controls|MapAnchorView /template/ avalonia|MaterialIcon#PART_Icon Path">
         <Setter Property="StrokeThickness" Value="1"/>
         <Setter Property="Stroke" Value="White"/>

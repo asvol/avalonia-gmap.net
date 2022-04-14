@@ -1,14 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Controls.Shapes;
 using Avalonia.Media;
-using Avalonia.VisualTree;
-using JetBrains.Annotations;
 
 namespace Asv.Avalonia.GMap
 {
@@ -20,7 +16,7 @@ namespace Asv.Avalonia.GMap
 
         }
 
-        private AvaloniaMap _map;
+        
         protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
         {
             base.OnAttachedToVisualTree(e);
@@ -29,18 +25,13 @@ namespace Asv.Avalonia.GMap
             while (a != null)
             {
                 a = a.Parent;
-                if (a is AvaloniaMap map)
-                {
-                    _map = map;
-                    UpdateLocalPosition();
-                    break;
-                }
+                
             }
         }
 
         private void UpdateLocalPosition()
         {
-            if (_map == null) return;
+            
             var localPath = new List<Point>();
 
         }

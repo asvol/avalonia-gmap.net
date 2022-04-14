@@ -5,8 +5,6 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Metadata;
 using Avalonia.Controls.Mixins;
-using Avalonia.Controls.Presenters;
-using Avalonia.Controls.Primitives;
 using ReactiveUI;
 
 namespace Asv.Avalonia.GMap
@@ -99,9 +97,7 @@ namespace Asv.Avalonia.GMap
             Canvas.SetTop(this, point.Y);
         }
 
-        public static readonly StyledProperty<bool> IsSelectedProperty = AvaloniaProperty.Register<AvaloniaMapItem, bool>(nameof(IsSelected));
-        
-
+        public static readonly StyledProperty<bool> IsSelectedProperty = AvaloniaProperty.Register<MapViewItem, bool>(nameof(IsSelected));
         public bool IsSelected
         {
             get => GetValue(IsSelectedProperty);

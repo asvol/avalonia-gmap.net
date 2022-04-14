@@ -2,12 +2,9 @@ using System.Collections;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Metadata;
-using Avalonia.Controls.Mixins;
 using Avalonia.Controls.Primitives;
 using Avalonia.Media;
-using Avalonia.ReactiveUI;
 using Material.Icons;
-using ReactiveUI;
 
 namespace Asv.Avalonia.GMap
 {
@@ -16,8 +13,8 @@ namespace Asv.Avalonia.GMap
     {
         public MapAnchorView()
         {
-            SelectableMixin.Attach<MapAnchorView>(IsSelectedProperty);
-            PressedMixin.Attach<MapAnchorView>();
+            // SelectableMixin.Attach<MapAnchorView>(IsSelectedProperty);
+            // PressedMixin.Attach<MapAnchorView>();
         }
 
         public static readonly StyledProperty<IBrush?> IconBrushProperty = AvaloniaProperty.Register<MapAnchorView, IBrush?>(nameof(IconBrush));

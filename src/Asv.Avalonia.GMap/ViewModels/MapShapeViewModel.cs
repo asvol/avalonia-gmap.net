@@ -9,6 +9,20 @@ namespace Asv.Avalonia.GMap
         Polygon
     }
 
+    public enum OffsetXEnum
+    {
+        Left,
+        Center,
+        Right
+    }
+
+    public enum OffsetYEnum
+    {
+        Top,
+        Center,
+        Bottom
+    }
+
     public abstract class MapShapeViewModel : ReactiveObject
     {
         public abstract MapShapeType ShapeType { get; }

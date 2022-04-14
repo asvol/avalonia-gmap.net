@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Reactive.Disposables;
-using System.Threading;
+﻿using System.Collections.ObjectModel;
 using Avalonia.Controls;
 using Avalonia.Media;
-using JetBrains.Annotations;
 using Material.Icons;
 using ReactiveUI.Fody.Helpers;
 

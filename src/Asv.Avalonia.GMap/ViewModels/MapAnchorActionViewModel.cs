@@ -1,5 +1,4 @@
 ﻿using System.Windows.Input;
-using Avalonia.Media;
 using Material.Icons;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;

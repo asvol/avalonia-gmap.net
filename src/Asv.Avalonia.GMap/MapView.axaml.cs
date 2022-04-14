@@ -7,7 +7,6 @@ using System.Reactive.Disposables;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Generators;
-using Avalonia.Controls.Presenters;
 using Avalonia.Controls.Primitives;
 using Avalonia.Controls.Selection;
 using Avalonia.Input;
@@ -32,7 +31,7 @@ namespace Asv.Avalonia.GMap
 
         static MapView()
         {
-            GMapImageProxy.Enable();
+            MapImageProxy.Enable();
             LocationProperty.Changed.Subscribe(_=>UpdateLocalPosition(_.Sender));
             OffsetXProperty.Changed.Subscribe(_ => UpdateLocalPosition(_.Sender));
             OffsetYProperty.Changed.Subscribe(_ => UpdateLocalPosition(_.Sender));
@@ -84,7 +83,6 @@ namespace Asv.Avalonia.GMap
             AvaloniaProperty.RegisterAttached<MapView, AvaloniaObject, OffsetXEnum>("OffsetX", OffsetXEnum.Center);
         public static void SetOffsetX(IAvaloniaObject element, object value) => element.SetValue(OffsetXProperty, value);
         public static OffsetXEnum GetOffsetX(IAvaloniaObject element) => element.GetValue(OffsetXProperty);
-        
 
         public static readonly AttachedProperty<OffsetYEnum> OffsetYProperty =
             AvaloniaProperty.RegisterAttached<MapView, AvaloniaObject, OffsetYEnum>("OffsetX", OffsetYEnum.Center);
@@ -121,7 +119,7 @@ namespace Asv.Avalonia.GMap
 
                         if (t.NotEmpty)
                         {
-                            foreach (GMapImage img in t.Overlays)
+                            foreach (MapImage img in t.Overlays)
                             {
                                 if (img != null && img.Img != null)
                                 {
