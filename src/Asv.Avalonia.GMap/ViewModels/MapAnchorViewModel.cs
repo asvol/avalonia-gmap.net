@@ -4,13 +4,16 @@ using System.Collections.ObjectModel;
 using System.Reactive.Disposables;
 using System.Threading;
 using Avalonia.Controls;
+using Avalonia.Media;
+using JetBrains.Annotations;
 using Material.Icons;
-using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 
 namespace Asv.Avalonia.GMap
 {
-    public class MapAnchorViewModel:ReactiveObject
+    
+
+    public class MapAnchorViewModel: MapShapeViewModel
     {
         public MapAnchorViewModel()
         {
@@ -25,22 +28,16 @@ namespace Asv.Avalonia.GMap
             }
         }
 
+        public override MapShapeType ShapeType => MapShapeType.Anchor;
+
         [Reactive]
         public MaterialIconKind Icon { get; set; }
         [Reactive]
         public double RotateCenterX { get; set; }
         [Reactive]
         public double RotateCenterY { get; set; }
-
-        [Reactive]
-        public OffsetXEnum OffsetX { get; set; }
-        [Reactive]
-        public OffsetYEnum OffsetY { get; set; }
-
-        [Reactive]
-        public bool IsSelected { get; set; }
-        [Reactive]
-        public bool IsVisible { get; set; } = true;
+        [Reactive] 
+        public IBrush IconBrush { get; set; }
         [Reactive]
         public double RotateAngle { get; set; }
         [Reactive]
@@ -48,10 +45,9 @@ namespace Asv.Avalonia.GMap
         [Reactive]
         public string Description { get; set; }
         [Reactive]
-        public PointLatLng Location { get; set; }
-        [Reactive]
         public double Size { get; set; } = 32;
 
         public virtual ReadOnlyObservableCollection<MapAnchorActionViewModel> Actions { get; }
+        
     }
 }

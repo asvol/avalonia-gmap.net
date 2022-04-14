@@ -40,12 +40,23 @@ namespace Asv.Avalonia.GMap
 
         public AvaloniaMapItem()
         {
-            _dispose.Add(this.Events().PointerEnter.Subscribe(_ => ZIndex += 10000));
-            _dispose.Add(this.Events().PointerLeave.Subscribe(_ => ZIndex -= 10000));
             this.WhenActivated(disp =>
             {
-                DisposableMixin.DisposeWith(this.WhenAnyValue(_ => _.Bounds).Subscribe(_=> UpdateLocalPosition()), disp);
+                DisposableMixins.DisposeWith(this.WhenAnyValue(_ => _.IsSelected).Subscribe(UpdateSelectableZindex), disp);
+                DisposableMixins.DisposeWith(this.WhenAnyValue(_ => _.Bounds).Subscribe(_=> UpdateLocalPosition()), disp);
             });
+        }
+
+        private void UpdateSelectableZindex(bool isSelected)
+        {
+            if (isSelected)
+            {
+                ZIndex += 10000;
+            }
+            else
+            {
+                ZIndex -= 10000;
+            }
         }
 
         #region Drag
@@ -174,19 +185,10 @@ namespace Asv.Avalonia.GMap
         #endregion
 
         public static readonly StyledProperty<bool> IsSelectedProperty = AvaloniaProperty.Register<AvaloniaMapItem, bool>(nameof(IsSelected));
-
-        private string _description;
-
         public bool IsSelected
         {
             get => GetValue(IsSelectedProperty);
             set => SetValue(IsSelectedProperty, value);
-        }
-
-        public string Description
-        {
-            get => _description;
-            set => SetAndRaise(MapAnchor.DescriptionProperty, ref _description, value);
         }
 
         public void Dispose()

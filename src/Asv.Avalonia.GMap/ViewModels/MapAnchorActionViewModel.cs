@@ -1,4 +1,5 @@
 ﻿using System.Windows.Input;
+using Avalonia.Media;
 using Material.Icons;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
@@ -15,5 +16,6 @@ namespace Asv.Avalonia.GMap
         public ICommand Command { get; set; }
         [Reactive]
         public object CommandParameter { get; set; }
+        
     }
 }

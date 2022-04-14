@@ -4,26 +4,26 @@
         xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
         xmlns:styles="clr-namespace:Material.Styles;assembly=Material.Styles">
   <Design.PreviewWith>
-    <controls:MapAnchor Icon="Navigation" Size="100" Title="Drone 1213123" RotateAngle="0" />
+    <controls:MapAnchorView Icon="Navigation" Size="100" Title="Drone 1213123" RotateAngle="0" />
   </Design.PreviewWith>
 
-    <Style Selector="controls|MapAnchor">
+    <Style Selector="controls|MapAnchorView">
 		<Setter Property="IsSelected" Value="{Binding IsSelected}"/>
     </Style>
 		   
-	<Style Selector="controls|MapAnchor /template/ avalonia|MaterialIcon#PART_Icon Path">
+	<Style Selector="controls|MapAnchorView /template/ avalonia|MaterialIcon#PART_Icon Path">
         <Setter Property="StrokeThickness" Value="1"/>
         <Setter Property="Stroke" Value="White"/>
     </Style>
-    <Style Selector="controls|MapAnchor:pointerover /template/ avalonia|MaterialIcon#PART_Icon Path">
+    <Style Selector="controls|MapAnchorView:pointerover /template/ avalonia|MaterialIcon#PART_Icon Path">
         <Setter Property="StrokeThickness" Value="2"/>
         <Setter Property="Stroke" Value="White"/>
     </Style>
-    <Style Selector="controls|MapAnchor[IsSelected=True] /template/ avalonia|MaterialIcon#PART_Icon Path">
+    <Style Selector="controls|MapAnchorView[IsSelected=True] /template/ avalonia|MaterialIcon#PART_Icon Path">
         <Setter Property="StrokeThickness" Value="2"/>
         <Setter Property="Stroke" Value="White"/>
     </Style>
-	<Style Selector="controls|MapAnchor">
+	<Style Selector="controls|MapAnchorView">
 
         <Setter Property="Template">
 			<ControlTemplate>
@@ -35,7 +35,7 @@
                                 <RotateTransform CenterX="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=RotateCenterX}" CenterY="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=RotateCenterY}" Angle="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=RotateAngle}" />
                             </Canvas.RenderTransform>
                             <Rectangle Width="{TemplateBinding Size}" Height="{TemplateBinding Size}" Fill="Black" Opacity="0"/>
-                            <avalonia:MaterialIcon BorderBrush="Green" Name="PART_Icon" Foreground="Red" Width="{TemplateBinding Size}" Height="{TemplateBinding Size}" Kind="{TemplateBinding Icon}"/>
+                            <avalonia:MaterialIcon Name="PART_Icon" Foreground="{TemplateBinding IconBrush}" Width="{TemplateBinding Size}" Height="{TemplateBinding Size}" Kind="{TemplateBinding Icon}"/>
                         </Canvas>
                     </Grid>
 					<Popup
@@ -50,7 +50,7 @@
                                         <DataTemplate DataType="controls:MapAnchorActionViewModel">
                                             <Button Margin="3" Command="{CompiledBinding Command}" CommandParameter="{CompiledBinding CommandParameter}" Classes="Outline Light" >
                                                 <StackPanel Orientation="Horizontal">
-                                                    <avalonia:MaterialIcon Margin="0,0,10,0" Kind="{CompiledBinding Icon}" Width="24" Height="24"/>
+                                                    <avalonia:MaterialIcon Margin="0,0,10,0"  Kind="{CompiledBinding Icon}" Width="24" Height="24"/>
                                                     <TextBlock VerticalAlignment="Center" Text="{CompiledBinding Title}"/>
 												</StackPanel>
 											</Button>

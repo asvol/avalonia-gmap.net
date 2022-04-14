@@ -8,33 +8,17 @@
 		</gMap:AvaloniaMapItem>
 	</Design.PreviewWith>
     <Style Selector="gMap|AvaloniaMapItem:pointerover /template/ ContentPresenter">
-        <Setter Property="ZIndex" Value="10000"></Setter>
+        
     </Style>
     <Style Selector="gMap|AvaloniaMapItem /template/ ContentPresenter">
-        <Setter Property="ZIndex" Value="0"></Setter>
+        
     </Style>
-	<!-- <Style Selector="gMap|AvaloniaMapItem:pointerover /template/ ContentPresenter"> -->
-	<!-- 	<Setter Property="Background" Value="Red"/> -->
-	<!-- </Style> -->
- <!--    <Style Selector="gMap|AvaloniaMapItem:selected /template/ ContentPresenter"> -->
- <!--        <Setter Property="Background" Value="Blue"/> -->
- <!--    </Style> -->
- <!--    <Style Selector="gMap|AvaloniaMapItem:selected:focus /template/ ContentPresenter"> -->
- <!--        <Setter Property="Background" Value="{DynamicResource ThemeAccentBrush3}"/> -->
- <!--    </Style> -->
- <!-- -->
- <!--    <Style Selector="gMap|AvaloniaMapItem:selected:pointerover /template/ ContentPresenter"> -->
- <!--        <Setter Property="Background" Value="{DynamicResource ThemeAccentBrush3}"/> -->
- <!--    </Style> -->
- <!-- -->
- <!--    <Style Selector="gMap|AvaloniaMapItem:selected:focus:pointerover /template/ ContentPresenter"> -->
- <!--        <Setter Property="Background" Value="{DynamicResource ThemeAccentBrush2}"/> -->
- <!--    </Style> -->
 	<Style Selector="gMap|AvaloniaMapItem">
 		<!-- Set Defaults -->
 		<Setter Property="Template">
 			<ControlTemplate>
                 <ContentPresenter Name="PART_ContentPresenter"
+                                  IsVisible="{TemplateBinding IsVisible}"
                                   Background="{TemplateBinding Background}"
                                   BorderBrush="{TemplateBinding BorderBrush}"
                                   BorderThickness="{TemplateBinding BorderThickness}"
