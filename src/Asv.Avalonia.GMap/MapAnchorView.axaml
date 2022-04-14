@@ -21,7 +21,6 @@
         <Setter Property="Stroke" Value="White"/>
     </Style>
 	<Style Selector="controls|MapAnchorView">
-
         <Setter Property="Template">
 			<ControlTemplate>
                 <Grid>

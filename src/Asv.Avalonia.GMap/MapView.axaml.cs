@@ -35,15 +35,20 @@ namespace Asv.Avalonia.GMap
             LocationProperty.Changed.Subscribe(_=>UpdateLocalPosition(_.Sender));
             OffsetXProperty.Changed.Subscribe(_ => UpdateLocalPosition(_.Sender));
             OffsetYProperty.Changed.Subscribe(_ => UpdateLocalPosition(_.Sender));
+            PathProperty.Changed.Subscribe(_ => UpdatePath(_.Sender));
 
+        }
+
+        private static void UpdatePath(IAvaloniaObject obj)
+        {
+            var find = (obj as ILogical).GetLogicalParent<MapViewItem>();
+            find?.UpdatePathCollection();
         }
 
         private static void UpdateLocalPosition(IAvaloniaObject obj)
         {
-            if (obj is ILogical { LogicalParent: MapViewItem item })
-            {
-                item.UpdateLocalPosition();
-            }
+            var find = (obj as ILogical).GetLogicalParent<MapViewItem>();
+            find?.UpdateLocalPosition();
         }
 
         public MapView()

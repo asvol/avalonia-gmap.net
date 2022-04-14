@@ -1,10 +1,18 @@
 using System;
+using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Linq;
 using System.Reactive.Disposables;
+using System.Reactive.Linq;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Metadata;
 using Avalonia.Controls.Mixins;
+using Avalonia.Controls.Shapes;
+using Avalonia.LogicalTree;
+using Avalonia.Media;
+using DynamicData.Binding;
 using ReactiveUI;
 
 namespace Asv.Avalonia.GMap
@@ -25,8 +33,10 @@ namespace Asv.Avalonia.GMap
         {
             this.WhenActivated(disp =>
             {
-                DisposableMixins.DisposeWith(this.WhenAnyValue(_ => _.IsSelected).Subscribe(UpdateSelectableZindex), disp);
-                DisposableMixins.DisposeWith(this.WhenAnyValue(_ => _.Bounds).Subscribe(_ => UpdateLocalPosition()), disp);
+                DisposableMixins.DisposeWith(this.WhenAnyValue(_ => _.IsSelected).Subscribe(UpdateSelectableZindex),
+                    disp);
+                DisposableMixins.DisposeWith(this.WhenAnyValue(_ => _.Bounds).Subscribe(_ => UpdateLocalPosition()),
+                    disp);
             });
         }
 
@@ -36,10 +46,12 @@ namespace Asv.Avalonia.GMap
             {
                 item.IsSelected = isSelected;
             }
+
             if (LogicalChildren.FirstOrDefault() is ISelectable item2)
             {
                 item2.IsSelected = isSelected;
             }
+
             if (isSelected)
             {
                 ZIndex += 10000;
@@ -67,8 +79,27 @@ namespace Asv.Avalonia.GMap
             }
         }
 
-        
 
+        private IDisposable _collectionSubscribe;
+        private bool _firstCall = true;
+
+        public void UpdatePathCollection()
+        {
+            _collectionSubscribe?.Dispose();
+            if (LogicalChildren.FirstOrDefault() is not Visual child) return;
+            var pathPoints = MapView.GetPath(child);
+            if (pathPoints is INotifyCollectionChanged coll)
+            {
+                _collectionSubscribe = Observable.FromEventPattern<NotifyCollectionChangedEventHandler, NotifyCollectionChangedEventArgs>(
+                    _ => coll.CollectionChanged += _, _ => coll.CollectionChanged -= _).ObserveOn(RxApp.MainThreadScheduler).Subscribe(_=>UpdateLocalPosition());
+            }
+        }
+
+        protected override void OnAttachedToLogicalTree(LogicalTreeAttachmentEventArgs e)
+        {
+            base.OnAttachedToLogicalTree(e);
+            UpdateLocalPosition();
+        }
 
         public void UpdateLocalPosition()
         {
@@ -77,37 +108,116 @@ namespace Asv.Avalonia.GMap
             var child = LogicalChildren.FirstOrDefault() as Visual;
             if (child == null) return;
 
-            var location = MapView.GetLocation(child);
-            var point = _map.FromLatLngToLocal(location);
-            var offsetXType = MapView.GetOffsetX(child);
-            var offsetYType = MapView.GetOffsetY(child);
-            var offsetX = offsetXType switch
-            {
-                OffsetXEnum.Left => 0,
-                OffsetXEnum.Center => Bounds.Width / 2,
-                OffsetXEnum.Right => Bounds.Width,
-                _ => throw new ArgumentOutOfRangeException()
-            };
-            var offsetY = offsetYType switch
-            {
-                OffsetYEnum.Top => 0,
-                OffsetYEnum.Center => Bounds.Height / 2,
-                OffsetYEnum.Bottom => Bounds.Height,
-                _ => throw new ArgumentOutOfRangeException()
-            };
-            point.Offset(-(long)(_map.MapTranslateTransform.X + offsetX), -(long)(_map.MapTranslateTransform.Y + offsetY));
-            Canvas.SetLeft(this, point.X);
-            Canvas.SetTop(this, point.Y);
-
-
             var pathPoints = MapView.GetPath(child);
-            if (pathPoints != null && pathPoints.Count > 1)
+            if (pathPoints is { Count: > 1 })
             {
+                if (_firstCall)
+                {
+                    _firstCall = false;
+                    UpdatePathCollection();
+                }
+                var localPath = new List<GPoint>(pathPoints.Count);
+                foreach (var p in pathPoints.ToArray())
+                {
+                    var itemPoint = _map.FromLatLngToLocal(p);
+                    itemPoint.Offset(-(long)(_map.MapTranslateTransform.X), -(long)(_map.MapTranslateTransform.Y));
+                    localPath.Add(itemPoint);
+                    //localPath.Add(new Point(itemPoint.X, itemPoint.Y));
+                }
 
+                var minX = localPath.Min(_ => _.X);
+                var minY = localPath.Min(_ => _.Y);
+                Canvas.SetLeft(this, minX);
+                Canvas.SetTop(this, minY);
+                var truePath = new List<Point>(pathPoints.Count);
+                foreach (var p in localPath)
+                {
+                    p.Offset(-minX,-minY);
+                    truePath.Add(new Point(p.X, p.Y));
+                }
+
+                Shape = CreatePath(truePath);
             }
+            else
+            {
+                var location = MapView.GetLocation(child);
+                var point = _map.FromLatLngToLocal(location);
+                var offsetXType = MapView.GetOffsetX(child);
+                var offsetYType = MapView.GetOffsetY(child);
+                var offsetX = offsetXType switch
+                {
+                    OffsetXEnum.Left => 0,
+                    OffsetXEnum.Center => Bounds.Width / 2,
+                    OffsetXEnum.Right => Bounds.Width,
+                    _ => throw new ArgumentOutOfRangeException()
+                };
+                var offsetY = offsetYType switch
+                {
+                    OffsetYEnum.Top => 0,
+                    OffsetYEnum.Center => Bounds.Height / 2,
+                    OffsetYEnum.Bottom => Bounds.Height,
+                    _ => throw new ArgumentOutOfRangeException()
+                };
+                point.Offset(-(long)(_map.MapTranslateTransform.X + offsetX),
+                    -(long)(_map.MapTranslateTransform.Y+ offsetY));
+                Canvas.SetLeft(this, point.X);
+                Canvas.SetTop(this, point.Y);
+            }
+
+
+            
         }
 
-        public static readonly StyledProperty<bool> IsSelectedProperty = AvaloniaProperty.Register<MapViewItem, bool>(nameof(IsSelected));
+        public static readonly StyledProperty<Path> ShapeProperty = AvaloniaProperty.Register<MapViewItem, Path>(nameof(Shape));
+        public Path Shape
+        {
+            get => GetValue(ShapeProperty);
+            set => SetValue(ShapeProperty, value);
+        }
+
+        public static Path CreatePath(List<Point> localPath)
+        {
+            // Create a StreamGeometry to use to specify myPath.
+            var geometry = new StreamGeometry();
+            geometry.BeginBatchUpdate();
+            using (var ctx = geometry.Open())
+            {
+                ctx.BeginFigure(localPath[0], true);
+                // Draw a line to the next specified point.
+                foreach (var path in localPath)
+                {
+                    ctx.LineTo(path);
+                }
+                //ctx.PolyLineTo(localPath, true, true);
+            }
+
+            // Freeze the geometry (make it unmodifiable)
+            // for additional performance benefits.
+            //geometry.Freeze();
+            geometry.EndBatchUpdate();
+            // Create a path to draw a geometry with.
+            var myPath = new Path();
+            {
+                // Specify the shape of the Path using the StreamGeometry.
+                myPath.Data = geometry;
+                myPath.Stroke = Brushes.MidnightBlue;
+                myPath.StrokeThickness = 5;
+                myPath.StrokeJoin = PenLineJoin.Round;
+                myPath.StrokeLineCap = PenLineCap.Square;
+                myPath.Fill = Brushes.AliceBlue;
+                myPath.Opacity = 0.6;
+                myPath.IsHitTestVisible = false;
+            }
+            return myPath;
+        }
+
+
+        public static readonly StyledProperty<bool> IsSelectedProperty =
+            AvaloniaProperty.Register<MapViewItem, bool>(nameof(IsSelected));
+
+        
+
+
         public bool IsSelected
         {
             get => GetValue(IsSelectedProperty);
