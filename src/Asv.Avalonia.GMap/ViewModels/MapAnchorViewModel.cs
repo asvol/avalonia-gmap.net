@@ -2,13 +2,28 @@
 using Avalonia.Controls;
 using Avalonia.Media;
 using Material.Icons;
+using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 
 namespace Asv.Avalonia.GMap
 {
-    
 
-    public class MapAnchorViewModel: MapShapeViewModel
+    public enum OffsetXEnum
+    {
+        Left,
+        Center,
+        Right
+    }
+
+    public enum OffsetYEnum
+    {
+        Top,
+        Center,
+        Bottom
+    }
+
+
+    public class MapAnchorViewModel: ReactiveObject
     {
         public MapAnchorViewModel()
         {
@@ -23,8 +38,18 @@ namespace Asv.Avalonia.GMap
             }
         }
 
-        public override MapShapeType ShapeType => MapShapeType.Anchor;
-
+        [Reactive]
+        public int ZIndex { get; set; }
+        [Reactive]
+        public OffsetXEnum OffsetX { get; set; }
+        [Reactive]
+        public OffsetYEnum OffsetY { get; set; }
+        [Reactive]
+        public bool IsSelected { get; set; }
+        [Reactive]
+        public bool IsVisible { get; set; }
+        [Reactive]
+        public PointLatLng Location { get; set; }
         [Reactive]
         public MaterialIconKind Icon { get; set; }
         [Reactive]
@@ -41,8 +66,10 @@ namespace Asv.Avalonia.GMap
         public string Description { get; set; }
         [Reactive]
         public double Size { get; set; } = 32;
-
+        
         public virtual ReadOnlyObservableCollection<MapAnchorActionViewModel> Actions { get; }
         
+        public virtual ReadOnlyObservableCollection<PointLatLng> Path { get; }
+
     }
 }

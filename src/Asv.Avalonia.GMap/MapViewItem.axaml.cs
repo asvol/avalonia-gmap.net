@@ -67,17 +67,20 @@ namespace Asv.Avalonia.GMap
             }
         }
 
+        
+
+
         public void UpdateLocalPosition()
         {
             if (_map == null) return;
 
-            var item = LogicalChildren.FirstOrDefault() as Visual;
-            if (item == null) return;
+            var child = LogicalChildren.FirstOrDefault() as Visual;
+            if (child == null) return;
 
-            var location = MapView.GetLocation(item);
+            var location = MapView.GetLocation(child);
             var point = _map.FromLatLngToLocal(location);
-            var offsetXType = MapView.GetOffsetX(item);
-            var offsetYType = MapView.GetOffsetY(item);
+            var offsetXType = MapView.GetOffsetX(child);
+            var offsetYType = MapView.GetOffsetY(child);
             var offsetX = offsetXType switch
             {
                 OffsetXEnum.Left => 0,
@@ -95,6 +98,13 @@ namespace Asv.Avalonia.GMap
             point.Offset(-(long)(_map.MapTranslateTransform.X + offsetX), -(long)(_map.MapTranslateTransform.Y + offsetY));
             Canvas.SetLeft(this, point.X);
             Canvas.SetTop(this, point.Y);
+
+
+            var pathPoints = MapView.GetPath(child);
+            if (pathPoints != null && pathPoints.Count > 1)
+            {
+
+            }
         }
 
         public static readonly StyledProperty<bool> IsSelectedProperty = AvaloniaProperty.Register<MapViewItem, bool>(nameof(IsSelected));

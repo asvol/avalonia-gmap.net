@@ -74,6 +74,11 @@ namespace Asv.Avalonia.GMap
 
         #region AttachedProperty
 
+        public static readonly AttachedProperty<IList<PointLatLng>> PathProperty =
+            AvaloniaProperty.RegisterAttached<MapView, AvaloniaObject, IList<PointLatLng>>("Path");
+        public static void SetPath(IAvaloniaObject element, IList<PointLatLng> value) => element.SetValue(PathProperty, value);
+        public static IList<PointLatLng> GetPath(IAvaloniaObject element) => element.GetValue(PathProperty);
+
         public static readonly AttachedProperty<PointLatLng> LocationProperty =
             AvaloniaProperty.RegisterAttached<MapView, AvaloniaObject, PointLatLng>("Location", PointLatLng.Empty);
         public static void SetLocation(IAvaloniaObject element, PointLatLng value) => element.SetValue(LocationProperty, value);

@@ -26,10 +26,4 @@
     </Reference>
   </ItemGroup>
 
-  <ItemGroup>
-    <Compile Update="MapAnchorView.axaml.cs">
-      <DependentUpon>MapAnchorView.axaml</DependentUpon>
-    </Compile>
-  </ItemGroup>
-
 </Project>
