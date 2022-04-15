@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using Avalonia.Collections;
 using Avalonia.Controls;
 using Avalonia.Media;
 using Material.Icons;
@@ -39,7 +40,7 @@ namespace Asv.Avalonia.GMap
         }
 
         [Reactive]
-        public int ZIndex { get; set; }
+        public int ZOrder { get; set; }
         [Reactive]
         public OffsetXEnum OffsetX { get; set; }
         [Reactive]
@@ -70,6 +71,22 @@ namespace Asv.Avalonia.GMap
         public virtual ReadOnlyObservableCollection<MapAnchorActionViewModel> Actions { get; }
         
         public virtual ReadOnlyObservableCollection<PointLatLng> Path { get; }
+
+        [Reactive]
+        public IBrush Fill { get; set; }
+        [Reactive]
+        public IBrush Stroke { get; set; } = Brushes.Blue;
+        [Reactive]
+        public double StrokeThickness { get; set; } = 3;
+        [Reactive]
+        public AvaloniaList<double> StrokeDashArray { get; set; }
+        [Reactive]
+        public double PathOpacity { get; set; } = 0.6;
+        
+        
+        
+
+
 
     }
 }

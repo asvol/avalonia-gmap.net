@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using Avalonia;
+using Avalonia.Collections;
 using Avalonia.Controls;
 using Avalonia.Controls.Metadata;
 using Avalonia.Controls.Mixins;
@@ -13,6 +14,7 @@ using Avalonia.Controls.Shapes;
 using Avalonia.LogicalTree;
 using Avalonia.Media;
 using DynamicData.Binding;
+using JetBrains.Annotations;
 using ReactiveUI;
 
 namespace Asv.Avalonia.GMap
@@ -60,6 +62,13 @@ namespace Asv.Avalonia.GMap
             {
                 ZIndex -= 10000;
             }
+        }
+
+        protected override void LogicalChildrenCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            base.LogicalChildrenCollectionChanged(sender, e);
+            if (LogicalChildren.FirstOrDefault() is not Visual child) return;
+            ZIndex = MapView.GetZOrder(child);
         }
 
         protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
@@ -111,6 +120,8 @@ namespace Asv.Avalonia.GMap
             var pathPoints = MapView.GetPath(child);
             if (pathPoints is { Count: > 1 })
             {
+                
+                IsShapeNotAvailable = false;// this is for hide content and draw only path
                 if (_firstCall)
                 {
                     _firstCall = false;
@@ -122,7 +133,6 @@ namespace Asv.Avalonia.GMap
                     var itemPoint = _map.FromLatLngToLocal(p);
                     itemPoint.Offset(-(long)(_map.MapTranslateTransform.X), -(long)(_map.MapTranslateTransform.Y));
                     localPath.Add(itemPoint);
-                    //localPath.Add(new Point(itemPoint.X, itemPoint.Y));
                 }
 
                 var minX = localPath.Min(_ => _.X);
@@ -135,11 +145,12 @@ namespace Asv.Avalonia.GMap
                     p.Offset(-minX,-minY);
                     truePath.Add(new Point(p.X, p.Y));
                 }
-
-                Shape = CreatePath(truePath);
+                
+                Shape = CreatePath(truePath, MapView.GetStroke(child), MapView.GetFill(child),MapView.GetStrokeThickness(child),MapView.GetStrokeDashArray(child),MapView.GetPathOpacity(child));
             }
             else
             {
+                IsShapeNotAvailable = true;
                 var location = MapView.GetLocation(child);
                 var point = _map.FromLatLngToLocal(location);
                 var offsetXType = MapView.GetOffsetX(child);
@@ -163,9 +174,15 @@ namespace Asv.Avalonia.GMap
                 Canvas.SetLeft(this, point.X);
                 Canvas.SetTop(this, point.Y);
             }
+        }
 
-
-            
+        public static readonly DirectProperty<MapViewItem, bool> IsShapeNotAvailableProperty =
+            AvaloniaProperty.RegisterDirect<MapViewItem, bool>(nameof(IsShapeNotAvailable), o => o.IsShapeNotAvailable);
+        private bool _isShapeNotAvailable = true;
+        public bool IsShapeNotAvailable
+        {
+            get => _isShapeNotAvailable;
+            private set => SetAndRaise(IsShapeNotAvailableProperty, ref _isShapeNotAvailable, value);
         }
 
         public static readonly StyledProperty<Path> ShapeProperty = AvaloniaProperty.Register<MapViewItem, Path>(nameof(Shape));
@@ -175,14 +192,14 @@ namespace Asv.Avalonia.GMap
             set => SetValue(ShapeProperty, value);
         }
 
-        public static Path CreatePath(List<Point> localPath)
+        public static Path CreatePath(List<Point> localPath, IBrush stroke, IBrush fill,double thickness, AvaloniaList<double> dash, double opacity )
         {
             // Create a StreamGeometry to use to specify myPath.
             var geometry = new StreamGeometry();
             geometry.BeginBatchUpdate();
             using (var ctx = geometry.Open())
             {
-                ctx.BeginFigure(localPath[0], true);
+                ctx.BeginFigure(localPath[0], false);
                 // Draw a line to the next specified point.
                 foreach (var path in localPath)
                 {
@@ -200,13 +217,15 @@ namespace Asv.Avalonia.GMap
             {
                 // Specify the shape of the Path using the StreamGeometry.
                 myPath.Data = geometry;
-                myPath.Stroke = Brushes.MidnightBlue;
-                myPath.StrokeThickness = 5;
+                myPath.Stroke = stroke;
+                myPath.StrokeThickness = thickness;
+                myPath.StrokeDashArray = dash;
                 myPath.StrokeJoin = PenLineJoin.Round;
                 myPath.StrokeLineCap = PenLineCap.Square;
-                myPath.Fill = Brushes.AliceBlue;
-                myPath.Opacity = 0.6;
+                myPath.Fill = fill;
+                myPath.Opacity = opacity;
                 myPath.IsHitTestVisible = false;
+                
             }
             return myPath;
         }
@@ -214,9 +233,6 @@ namespace Asv.Avalonia.GMap
 
         public static readonly StyledProperty<bool> IsSelectedProperty =
             AvaloniaProperty.Register<MapViewItem, bool>(nameof(IsSelected));
-
-        
-
 
         public bool IsSelected
         {

@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -5,10 +6,12 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Disposables;
 using Avalonia;
+using Avalonia.Collections;
 using Avalonia.Controls;
 using Avalonia.Controls.Generators;
 using Avalonia.Controls.Primitives;
 using Avalonia.Controls.Selection;
+using Avalonia.Data;
 using Avalonia.Input;
 using Avalonia.LogicalTree;
 using Avalonia.Media;
@@ -36,7 +39,17 @@ namespace Asv.Avalonia.GMap
             OffsetXProperty.Changed.Subscribe(_ => UpdateLocalPosition(_.Sender));
             OffsetYProperty.Changed.Subscribe(_ => UpdateLocalPosition(_.Sender));
             PathProperty.Changed.Subscribe(_ => UpdatePath(_.Sender));
+            ZOrderProperty.Changed.Subscribe(_ => UpdateZOrder(_.Sender,_.NewValue));
 
+        }
+
+        private static void UpdateZOrder(IAvaloniaObject obj, BindingValue<int> objNewValue)
+        {
+            var find = (obj as ILogical).GetLogicalParent<MapViewItem>();
+            if (find != null)
+            {
+                find.ZIndex = objNewValue.Value;
+            }
         }
 
         private static void UpdatePath(IAvaloniaObject obj)
@@ -79,6 +92,35 @@ namespace Asv.Avalonia.GMap
 
         #region AttachedProperty
 
+
+
+
+        public static readonly AttachedProperty<IBrush?> StrokeProperty =
+            AvaloniaProperty.RegisterAttached<MapView, AvaloniaObject, IBrush?>("Stroke", Brushes.Blue);
+        public static void SetStroke(IAvaloniaObject element, IBrush? value) => element.SetValue(StrokeProperty, value);
+        public static IBrush? GetStroke(IAvaloniaObject element) => element.GetValue(StrokeProperty);
+
+        public static readonly AttachedProperty<IBrush?> FillProperty =
+            AvaloniaProperty.RegisterAttached<MapView, AvaloniaObject, IBrush?>("Fill",null);
+        public static void SetFill(IAvaloniaObject element, IBrush? value) => element.SetValue(FillProperty, value);
+        public static IBrush? GetFill(IAvaloniaObject element) => element.GetValue(FillProperty);
+
+        public static readonly AttachedProperty<double> StrokeThicknessProperty =
+            AvaloniaProperty.RegisterAttached<MapView, AvaloniaObject, double>("StrokeThickness",3);
+        public static void SetStrokeThickness(IAvaloniaObject element, double value) => element.SetValue(StrokeThicknessProperty, value);
+        public static double GetStrokeThickness(IAvaloniaObject element) => element.GetValue(StrokeThicknessProperty);
+
+        public static readonly AttachedProperty<AvaloniaList<double>> StrokeDashArrayProperty =
+            AvaloniaProperty.RegisterAttached<MapView, AvaloniaObject, AvaloniaList<double>>("StrokeDashArray");
+        public static void SetStrokeDashArray(IAvaloniaObject element, AvaloniaList<double> value) => element.SetValue(StrokeDashArrayProperty, value);
+        public static AvaloniaList<double> GetStrokeDashArray(IAvaloniaObject element) => element.GetValue(StrokeDashArrayProperty);
+
+        public static readonly AttachedProperty<double> PathOpacityProperty =
+            AvaloniaProperty.RegisterAttached<MapView, AvaloniaObject, double>("PathOpacity");
+        public static void SetPathOpacity(IAvaloniaObject element, double value) => element.SetValue(PathOpacityProperty, value);
+        public static double GetPathOpacity(IAvaloniaObject element) => element.GetValue(PathOpacityProperty);
+
+
         public static readonly AttachedProperty<IList<PointLatLng>> PathProperty =
             AvaloniaProperty.RegisterAttached<MapView, AvaloniaObject, IList<PointLatLng>>("Path");
         public static void SetPath(IAvaloniaObject element, IList<PointLatLng> value) => element.SetValue(PathProperty, value);
@@ -91,14 +133,19 @@ namespace Asv.Avalonia.GMap
 
         public static readonly AttachedProperty<OffsetXEnum> OffsetXProperty =
             AvaloniaProperty.RegisterAttached<MapView, AvaloniaObject, OffsetXEnum>("OffsetX", OffsetXEnum.Center);
-        public static void SetOffsetX(IAvaloniaObject element, object value) => element.SetValue(OffsetXProperty, value);
+        public static void SetOffsetX(IAvaloniaObject element, OffsetXEnum value) => element.SetValue(OffsetXProperty, value);
         public static OffsetXEnum GetOffsetX(IAvaloniaObject element) => element.GetValue(OffsetXProperty);
 
         public static readonly AttachedProperty<OffsetYEnum> OffsetYProperty =
-            AvaloniaProperty.RegisterAttached<MapView, AvaloniaObject, OffsetYEnum>("OffsetX", OffsetYEnum.Center);
-        public static void SetOffsetY(IAvaloniaObject element, object value) => element.SetValue(OffsetYProperty, value);
+            AvaloniaProperty.RegisterAttached<MapView, AvaloniaObject, OffsetYEnum>("OffsetY", OffsetYEnum.Center);
+        public static void SetOffsetY(IAvaloniaObject element, OffsetYEnum value) => element.SetValue(OffsetYProperty, value);
         public static OffsetYEnum GetOffsetY(IAvaloniaObject element) => element.GetValue(OffsetYProperty);
-        
+
+        public static readonly AttachedProperty<int> ZOrderProperty =
+            AvaloniaProperty.RegisterAttached<MapView, AvaloniaObject, int>("ZOrder", defaultBindingMode: BindingMode.OneWay);
+        public static void SetZOrder(IAvaloniaObject element, int value) => element.SetValue(ZOrderProperty, value);
+        public static int GetZOrder(IAvaloniaObject element) => element.GetValue(ZOrderProperty);
+
 
         #endregion
 

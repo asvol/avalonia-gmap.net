@@ -1,10 +1,13 @@
+using System;
 using System.Collections;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Metadata;
+using Avalonia.Controls.Mixins;
 using Avalonia.Controls.Primitives;
 using Avalonia.Media;
 using Material.Icons;
+using ReactiveUI;
 
 namespace Asv.Avalonia.GMap
 {
@@ -13,8 +16,19 @@ namespace Asv.Avalonia.GMap
     {
         public MapAnchorView()
         {
-            // SelectableMixin.Attach<MapAnchorView>(IsSelectedProperty);
+            SelectableMixin.Attach<MapAnchorView>(IsSelectedProperty);
             // PressedMixin.Attach<MapAnchorView>();
+            this.WhenAnyValue(_ => _.Description).Subscribe(_ => IsPopupNotEmpty = !string.IsNullOrWhiteSpace(Description) );
+        }
+
+        public static readonly DirectProperty<MapAnchorView, bool> IsPopupNotEmptyProperty =
+            AvaloniaProperty.RegisterDirect<MapAnchorView, bool>(nameof(IsPopupNotEmpty), o => o.IsPopupNotEmpty, (o, v) => o.IsPopupNotEmpty = v);
+
+        private bool _isPopupNotEmpty = true;
+        public bool IsPopupNotEmpty
+        {
+            get => _isPopupNotEmpty;
+            set => SetAndRaise(IsPopupNotEmptyProperty, ref _isPopupNotEmpty, value);
         }
 
         public static readonly StyledProperty<IBrush?> IconBrushProperty = AvaloniaProperty.Register<MapAnchorView, IBrush?>(nameof(IconBrush));
@@ -24,7 +38,13 @@ namespace Asv.Avalonia.GMap
             set => SetValue(IconBrushProperty, value);
         }
 
-        public static readonly StyledProperty<string> TitleProperty = AvaloniaProperty.Register<MapAnchorView, string>(nameof(Title));
+        public static readonly StyledProperty<string> TitleProperty = AvaloniaProperty.Register<MapAnchorView, string>(nameof(Title),String.Empty, coerce:OnTitleChanged);
+
+        private static string OnTitleChanged(IAvaloniaObject arg1, string arg2)
+        {
+            return arg2 ?? string.Empty;
+        }
+
         public string Title
         {
             get => GetValue(TitleProperty);
