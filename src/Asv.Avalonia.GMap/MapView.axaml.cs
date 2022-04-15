@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Disposables;
+using System.Reactive.Linq;
 using Avalonia;
 using Avalonia.Collections;
 using Avalonia.Controls;
@@ -755,7 +756,8 @@ namespace Asv.Avalonia.GMap
 
         protected override void OnPointerMoved(PointerEventArgs e)
         {
-            if (IsInDialogMode) return;
+            // this is for disable drag on touch screens after dialog clicked
+            if (_disablePointerActions) return;
             base.OnPointerMoved(e);
 
             // wpf generates to many events if mouse is over some visual
@@ -840,7 +842,8 @@ namespace Asv.Avalonia.GMap
 
         protected override void OnPointerReleased(PointerReleasedEventArgs e)
         {
-            if (IsInDialogMode) return;
+            // this is for disable drag on touch screens after dialog clicked
+            if (_disablePointerActions) return;
 
             base.OnPointerReleased(e);
 
@@ -878,11 +881,13 @@ namespace Asv.Avalonia.GMap
                 {
                     point = MapScaleTransform.Inverse().Transform(point);
                 }
+                
                 DialogTarget = FromLocalToLatLng((int)(point.X), (int)(point.Y));
                 IsInDialogMode = false;
                 return;
             }
-
+            // this is for disable drag on touch screens after dialog clicked
+            if (_disablePointerActions) return;
 
             base.OnPointerPressed(e);
 
@@ -970,8 +975,10 @@ namespace Asv.Avalonia.GMap
         }
 
         private Cursor _oldCursor;
+        private bool _disablePointerActions = false;
         private void DisableDialogMode()
         {
+            Observable.Timer(TimeSpan.FromSeconds(1)).Subscribe(_=>_disablePointerActions = false).DisposeWith(Disposable);
             foreach (var item in LogicalChildren)
             {
                 if (item is IVisual visual)
@@ -984,6 +991,7 @@ namespace Asv.Avalonia.GMap
         private void EnableDialogMode()
         {
             _oldCursor = Cursor;
+            _disablePointerActions = true;
             Cursor = new Cursor(StandardCursorType.Hand);
             foreach (var item in LogicalChildren.Cast<MapViewItem>())
             {
