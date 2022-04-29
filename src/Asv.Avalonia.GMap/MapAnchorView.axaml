@@ -67,7 +67,7 @@
                             <TextBlock VerticalAlignment="Center" Foreground="White" Name="PART_Title" DockPanel.Dock="Bottom" HorizontalAlignment="Center" TextAlignment="Center" Margin="0,0,0,0" Text="{TemplateBinding Title}"/>
                         </Border>
                         
-                        <Canvas HorizontalAlignment="Center" Grid.Row="1" Width="{TemplateBinding Size}" Height="{TemplateBinding Size}">
+                        <Canvas Name="IconCanvas" Bounds="{TemplateBinding CanvasBounds, Mode=OneWayToSource}" HorizontalAlignment="Center" Grid.Row="1" Width="{TemplateBinding Size}" Height="{TemplateBinding Size}">
                             <Canvas.RenderTransform>
                                 <RotateTransform CenterX="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=RotateCenterX}" CenterY="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=RotateCenterY}" Angle="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=RotateAngle}" />
                             </Canvas.RenderTransform>

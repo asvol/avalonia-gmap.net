@@ -11,6 +11,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.Metadata;
 using Avalonia.Controls.Mixins;
 using Avalonia.Controls.Shapes;
+using Avalonia.Input;
 using Avalonia.LogicalTree;
 using Avalonia.Media;
 using DynamicData.Binding;
@@ -29,18 +30,63 @@ namespace Asv.Avalonia.GMap
             SelectableMixin.Attach<MapViewItem>(IsSelectedProperty);
             PressedMixin.Attach<MapViewItem>();
             FocusableProperty.OverrideDefaultValue<MapViewItem>(true);
+
         }
+        private bool _isDrugged;
 
         public MapViewItem()
         {
             this.WhenActivated(disp =>
             {
-                DisposableMixins.DisposeWith(this.WhenAnyValue(_ => _.IsSelected).Subscribe(UpdateSelectableZindex),
-                    disp);
-                DisposableMixins.DisposeWith(this.WhenAnyValue(_ => _.Bounds).Subscribe(_ => UpdateLocalPosition()),
-                    disp);
+                DisposableMixins.DisposeWith(this.WhenAnyValue(_ => _.IsSelected).Subscribe(UpdateSelectableZindex), disp);
+                DisposableMixins.DisposeWith(this.WhenAnyValue(_ => _.Bounds).Subscribe(_ => UpdateLocalPosition()), disp);
+
+                DisposableMixins.DisposeWith(this.Events().PointerPressed.Where(_ => IsEditable).Subscribe(DragPointerPressed),disp);
+                DisposableMixins.DisposeWith(this.Events().PointerReleased.Where(_ => IsEditable).Subscribe(DragPointerReleased), disp);
+                DisposableMixins.DisposeWith(this.Events().PointerMoved.Where(_ => IsEditable && _isDrugged).Subscribe(DragPointerMoved), disp);
+                
             });
+
         }
+
+        public bool IsEditable
+        {
+            get => _isEditable;
+            set => _isEditable = value;
+        }
+
+        private void DragPointerMoved(PointerEventArgs args)
+        {
+
+            if (_isDrugged)
+            {
+                if (_map == null) return;
+
+                var child = LogicalChildren.FirstOrDefault() as Visual;
+                if (child == null) return;
+
+                var point = args.GetCurrentPoint(_map.MapCanvas);
+                var offsetX = 0;
+                var offsetY = 0;
+               
+                var location = _map.FromLocalToLatLng((int)(point.Position.X  + _map.MapTranslateTransform.X + offsetX), (int)(point.Position.Y + _map.MapTranslateTransform.Y + offsetY));
+                MapView.SetLocation(child, location); 
+            }
+        }
+        private void DragPointerPressed(PointerPressedEventArgs args)
+        {
+            if ((args.KeyModifiers & KeyModifiers.Control) != 0)
+            {
+                _isDrugged = true;
+                args.Handled = true;
+            }
+        }
+        private void DragPointerReleased(PointerReleasedEventArgs args)
+        {
+            _isDrugged = false;
+        }
+
+        
 
         private void UpdateSelectableZindex(bool isSelected)
         {
@@ -69,6 +115,7 @@ namespace Asv.Avalonia.GMap
             base.LogicalChildrenCollectionChanged(sender, e);
             if (LogicalChildren.FirstOrDefault() is not Visual child) return;
             ZIndex = MapView.GetZOrder(child);
+            IsEditable = MapView.GetIsEditable(child);
         }
 
         protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
@@ -153,22 +200,16 @@ namespace Asv.Avalonia.GMap
                 IsShapeNotAvailable = true;
                 var location = MapView.GetLocation(child);
                 var point = _map.FromLatLngToLocal(location);
-                var offsetXType = MapView.GetOffsetX(child);
-                var offsetYType = MapView.GetOffsetY(child);
-                var offsetX = offsetXType switch
+                var offsetX = MapView.GetOffsetX(child);
+                var offsetY = MapView.GetOffsetY(child);
+                if (double.IsNaN(offsetX))
                 {
-                    OffsetXEnum.Left => 0,
-                    OffsetXEnum.Center => Bounds.Width / 2,
-                    OffsetXEnum.Right => Bounds.Width,
-                    _ => throw new ArgumentOutOfRangeException()
-                };
-                var offsetY = offsetYType switch
+                    offsetX = Bounds.Width / 2.0;
+                }
+                if (double.IsNaN(offsetY))
                 {
-                    OffsetYEnum.Top => 0,
-                    OffsetYEnum.Center => Bounds.Height / 2,
-                    OffsetYEnum.Bottom => Bounds.Height,
-                    _ => throw new ArgumentOutOfRangeException()
-                };
+                    offsetY = Bounds.Height / 2.0;
+                }
                 point.Offset(-(long)(_map.MapTranslateTransform.X + offsetX),
                     -(long)(_map.MapTranslateTransform.Y+ offsetY));
                 Canvas.SetLeft(this, point.X);
@@ -179,6 +220,8 @@ namespace Asv.Avalonia.GMap
         public static readonly DirectProperty<MapViewItem, bool> IsShapeNotAvailableProperty =
             AvaloniaProperty.RegisterDirect<MapViewItem, bool>(nameof(IsShapeNotAvailable), o => o.IsShapeNotAvailable);
         private bool _isShapeNotAvailable = true;
+        private bool _isEditable;
+
         public bool IsShapeNotAvailable
         {
             get => _isShapeNotAvailable;
@@ -234,11 +277,14 @@ namespace Asv.Avalonia.GMap
         public static readonly StyledProperty<bool> IsSelectedProperty =
             AvaloniaProperty.Register<MapViewItem, bool>(nameof(IsSelected));
 
+        
+
         public bool IsSelected
         {
             get => GetValue(IsSelectedProperty);
             set => SetValue(IsSelectedProperty, value);
         }
 
+        
     }
 }

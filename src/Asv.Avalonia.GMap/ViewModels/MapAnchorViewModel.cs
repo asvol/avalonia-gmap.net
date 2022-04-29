@@ -38,7 +38,8 @@ namespace Asv.Avalonia.GMap
                     });
             }
         }
-
+        [Reactive]
+        public bool IsEditable { get; set; } = false;
         [Reactive]
         public int ZOrder { get; set; }
         [Reactive]
@@ -84,9 +85,5 @@ namespace Asv.Avalonia.GMap
         public double PathOpacity { get; set; } = 0.6;
         
         
-        
-
-
-
     }
 }

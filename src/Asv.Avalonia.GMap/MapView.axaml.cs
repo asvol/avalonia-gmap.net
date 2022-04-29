@@ -41,7 +41,17 @@ namespace Asv.Avalonia.GMap
             OffsetYProperty.Changed.Subscribe(_ => UpdateLocalPosition(_.Sender));
             PathProperty.Changed.Subscribe(_ => UpdatePath(_.Sender));
             ZOrderProperty.Changed.Subscribe(_ => UpdateZOrder(_.Sender,_.NewValue));
+            IsEditableProperty.Changed.Subscribe(_ => UpdateIsEditable(_.Sender, _.NewValue));
 
+        }
+
+        private static void UpdateIsEditable(IAvaloniaObject obj, BindingValue<bool> objNewValue)
+        {
+            var find = (obj as ILogical).GetLogicalParent<MapViewItem>();
+            if (find != null)
+            {
+                find.IsEditable = objNewValue.Value;
+            }
         }
 
         private static void UpdateZOrder(IAvaloniaObject obj, BindingValue<int> objNewValue)
@@ -132,20 +142,25 @@ namespace Asv.Avalonia.GMap
         public static void SetLocation(IAvaloniaObject element, PointLatLng value) => element.SetValue(LocationProperty, value);
         public static PointLatLng GetLocation(IAvaloniaObject element) => element.GetValue(LocationProperty);
 
-        public static readonly AttachedProperty<OffsetXEnum> OffsetXProperty =
-            AvaloniaProperty.RegisterAttached<MapView, AvaloniaObject, OffsetXEnum>("OffsetX", OffsetXEnum.Center);
-        public static void SetOffsetX(IAvaloniaObject element, OffsetXEnum value) => element.SetValue(OffsetXProperty, value);
-        public static OffsetXEnum GetOffsetX(IAvaloniaObject element) => element.GetValue(OffsetXProperty);
+        public static readonly AttachedProperty<double> OffsetXProperty =
+            AvaloniaProperty.RegisterAttached<MapView, AvaloniaObject, double>("OffsetX", 0);
+        public static void SetOffsetX(IAvaloniaObject element, double value) => element.SetValue(OffsetXProperty, value);
+        public static double GetOffsetX(IAvaloniaObject element) => element.GetValue(OffsetXProperty);
 
-        public static readonly AttachedProperty<OffsetYEnum> OffsetYProperty =
-            AvaloniaProperty.RegisterAttached<MapView, AvaloniaObject, OffsetYEnum>("OffsetY", OffsetYEnum.Center);
-        public static void SetOffsetY(IAvaloniaObject element, OffsetYEnum value) => element.SetValue(OffsetYProperty, value);
-        public static OffsetYEnum GetOffsetY(IAvaloniaObject element) => element.GetValue(OffsetYProperty);
+        public static readonly AttachedProperty<double> OffsetYProperty =
+            AvaloniaProperty.RegisterAttached<MapView, AvaloniaObject, double>("OffsetY", 0);
+        public static void SetOffsetY(IAvaloniaObject element, double value) => element.SetValue(OffsetYProperty, value);
+        public static double GetOffsetY(IAvaloniaObject element) => element.GetValue(OffsetYProperty);
 
         public static readonly AttachedProperty<int> ZOrderProperty =
             AvaloniaProperty.RegisterAttached<MapView, AvaloniaObject, int>("ZOrder", defaultBindingMode: BindingMode.OneWay);
         public static void SetZOrder(IAvaloniaObject element, int value) => element.SetValue(ZOrderProperty, value);
         public static int GetZOrder(IAvaloniaObject element) => element.GetValue(ZOrderProperty);
+
+        public static readonly AttachedProperty<bool> IsEditableProperty =
+            AvaloniaProperty.RegisterAttached<MapView, AvaloniaObject, bool>("IsEditable", defaultBindingMode: BindingMode.TwoWay);
+        public static void SetIsEditable(IAvaloniaObject element, bool value) => element.SetValue(IsEditableProperty, value);
+        public static bool GetIsEditable(IAvaloniaObject element) => element.GetValue(IsEditableProperty);
 
 
         #endregion
@@ -248,12 +263,20 @@ namespace Asv.Avalonia.GMap
         private void ForceUpdateOverlays()
         {
             if (MapCanvas == null) return;
+
             UpdateMarkersOffset();
-            
             foreach (var obj in LogicalChildren.Cast<MapViewItem>())
             {
                 obj.UpdateLocalPosition();
+                if (obj.IsSelected)
+                {
+                    var child = obj.GetLogicalChildren().FirstOrDefault() as Visual;
+                    if (child == null) return;
+                    Position = GetLocation(child);
+                }
             }
+
+            
         }
 
         private Canvas _mapCanvas;
