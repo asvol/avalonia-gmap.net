@@ -51,6 +51,8 @@ namespace Asv.Avalonia.GMap
         [Reactive]
         public bool IsVisible { get; set; }
         [Reactive]
+        public double Altitude { get; set; }
+        [Reactive]
         public PointLatLng Location { get; set; }
         [Reactive]
         public MaterialIconKind Icon { get; set; }
