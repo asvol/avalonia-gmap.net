@@ -7,11 +7,13 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Xml;
+using NLog;
 
 namespace Asv.Avalonia.GMap
 {
     public abstract class BingMapProviderBase : GMapProvider, RoutingProvider, GeocodingProvider
     {
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         public BingMapProviderBase()
         {
             MaxZoom = null;
@@ -227,11 +229,11 @@ namespace Asv.Avalonia.GMap
 
                             SessionId = keyResponse.Split(',')[0].Split(':')[1].Replace("\"", string.Empty)
                                 .Replace(" ", string.Empty);
-                            Debug.WriteLine("GMapProviders.BingMap.SessionId: " + SessionId);
+                            Logger.Trace("GMapProviders.BingMap.SessionId: " + SessionId);
                         }
                         else
                         {
-                            Debug.WriteLine("BingLoggingServiceV1: " + keyResponse);
+                            Logger.Trace("BingLoggingServiceV1: " + keyResponse);
                         }
                     }
 
@@ -282,7 +284,7 @@ namespace Asv.Avalonia.GMap
                                         GMapProviders.BingHybridMap.Version = ver;
                                         GMapProviders.BingOSMap.Version = ver;
 #if DEBUG
-                                        Debug.WriteLine("GMapProviders.BingMap.Version: " + ver + ", old: " + old +
+                                        Logger.Trace("GMapProviders.BingMap.Version: " + ver + ", old: " + old +
                                                         ", consider updating source");
                                         if (Debugger.IsAttached)
                                         {
@@ -292,7 +294,7 @@ namespace Asv.Avalonia.GMap
                                     }
                                     else
                                     {
-                                        Debug.WriteLine("GMapProviders.BingMap.Version: " + ver + ", OK");
+                                        Logger.Trace("GMapProviders.BingMap.Version: " + ver + ", OK");
                                     }
                                 }
                             }
@@ -307,7 +309,7 @@ namespace Asv.Avalonia.GMap
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine("TryCorrectBingVersions failed: " + ex);
+                    Logger.Trace("TryCorrectBingVersions failed: " + ex);
                 }
             }
         }
@@ -390,7 +392,7 @@ namespace Asv.Avalonia.GMap
                                         baseTileUrl += "&key=" + SessionId;
                                     }
 
-                                    Debug.WriteLine("GetTileUrl, UrlFormat[" + imageryType + "]: " + baseTileUrl);
+                                    Logger.Trace("GetTileUrl, UrlFormat[" + imageryType + "]: " + baseTileUrl);
 
                                     ret = baseTileUrl;
                                     break;
@@ -401,7 +403,7 @@ namespace Asv.Avalonia.GMap
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine("GetTileUrl: Error getting Bing Maps tile URL - " + ex);
+                    Logger.Trace("GetTileUrl: Error getting Bing Maps tile URL - " + ex);
                 }
             }
 
@@ -583,7 +585,7 @@ namespace Asv.Avalonia.GMap
             catch (Exception ex)
             {
                 points = null;
-                Debug.WriteLine("GetRoutePoints: " + ex);
+                Logger.Trace("GetRoutePoints: " + ex);
             }
 
             return points;
@@ -770,7 +772,7 @@ namespace Asv.Avalonia.GMap
             catch (Exception ex)
             {
                 status = GeoCoderStatusCode.EXCEPTION_IN_CODE;
-                Debug.WriteLine("GetLatLngFromGeocoderUrl: " + ex);
+                Logger.Trace("GetLatLngFromGeocoderUrl: " + ex);
             }
 
             return status;

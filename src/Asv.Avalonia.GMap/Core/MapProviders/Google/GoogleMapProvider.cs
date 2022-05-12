@@ -7,12 +7,14 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using Newtonsoft.Json;
+using NLog;
 
 namespace Asv.Avalonia.GMap
 {
     public abstract class GoogleMapProviderBase : GMapProvider, RoutingProvider, GeocodingProvider, DirectionsProvider,
         RoadsProvider
     {
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         public GoogleMapProviderBase()
         {
             MaxZoom = null;
@@ -143,9 +145,9 @@ namespace Asv.Avalonia.GMap
                                 GMapProviders.GoogleHybridMap.Version = verh;
                                 GMapProviders.GoogleChinaHybridMap.Version = verh;
 #if DEBUG
-                                Debug.WriteLine("GMapProviders.GoogleMap.Version: " + ver + ", " +
+                                Logger.Trace("GMapProviders.GoogleMap.Version: " + ver + ", " +
                                                 (ver == old ? "OK" : "old: " + old + ", consider updating source"));
-                                Debug.WriteLine("GMapProviders.GoogleHybridMap.Version: " + verh + ", " +
+                                Logger.Trace("GMapProviders.GoogleHybridMap.Version: " + verh + ", " +
                                                 (verh == oldh ? "OK" : "old: " + oldh + ", consider updating source"));
 
                                 if (Debugger.IsAttached && ver != old)
@@ -174,7 +176,7 @@ namespace Asv.Avalonia.GMap
                                 GMapProviders.GoogleKoreaSatelliteMap.Version = ver;
                                 GMapProviders.GoogleChinaSatelliteMap.Version = "s@" + ver;
 #if DEBUG
-                                Debug.WriteLine("GMapProviders.GoogleSatelliteMap.Version: " + ver + ", " +
+                                Logger.Trace("GMapProviders.GoogleSatelliteMap.Version: " + ver + ", " +
                                                 (ver == old ? "OK" : "old: " + old + ", consider updating source"));
                                 if (Debugger.IsAttached && ver != old)
                                 {
@@ -201,7 +203,7 @@ namespace Asv.Avalonia.GMap
                                 GMapProviders.GoogleTerrainMap.Version = ver;
                                 GMapProviders.GoogleChinaTerrainMap.Version = ver;
 #if DEBUG
-                                Debug.WriteLine("GMapProviders.GoogleTerrainMap.Version: " + ver + ", " +
+                                Logger.Trace("GMapProviders.GoogleTerrainMap.Version: " + ver + ", " +
                                                 (ver == old ? "OK" : "old: " + old + ", consider updating source"));
 
                                 if (Debugger.IsAttached && ver != old)
@@ -219,7 +221,7 @@ namespace Asv.Avalonia.GMap
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine("TryCorrectGoogleVersions failed: " + ex.ToString());
+                    Logger.Trace("TryCorrectGoogleVersions failed: " + ex.ToString());
                 }
             }
         }
@@ -361,7 +363,7 @@ namespace Asv.Avalonia.GMap
             catch (Exception ex)
             {
                 ret = null;
-                Debug.WriteLine("GetRoutePoints: " + ex);
+                Logger.Trace("GetRoutePoints: " + ex);
             }
 
             return ret;
@@ -512,7 +514,7 @@ namespace Asv.Avalonia.GMap
                         }
                         else
                         {
-                            Debug.WriteLine("GetLatLngFromGeocoderUrl: " + geoResult.status);
+                            Logger.Trace("GetLatLngFromGeocoderUrl: " + geoResult.status);
                         }
                     }
                 }
@@ -520,7 +522,7 @@ namespace Asv.Avalonia.GMap
             catch (Exception ex)
             {
                 status = GeoCoderStatusCode.EXCEPTION_IN_CODE;
-                Debug.WriteLine("GetLatLngFromGeocoderUrl: " + ex);
+                Logger.Trace("GetLatLngFromGeocoderUrl: " + ex);
             }
 
             return status;
@@ -578,18 +580,18 @@ namespace Asv.Avalonia.GMap
 
                             if (geoResult.results != null && geoResult.results.Count > 0)
                             {
-                                Debug.WriteLine("---------------------");
+                                Logger.Trace("---------------------");
 
                                 for (int i = 0; i < geoResult.results.Count; i++)
                                 {
                                     var ret = new Placemark(geoResult.results[i].formatted_address);
 
-                                    Debug.WriteLine("formatted_address: [" + geoResult.results[i].formatted_address +
+                                    Logger.Trace("formatted_address: [" + geoResult.results[i].formatted_address +
                                                     "]");
 
                                     if (geoResult.results[i].types != null)
                                     {
-                                        Debug.WriteLine("type: " + geoResult.results[i].types);
+                                        Logger.Trace("type: " + geoResult.results[i].types);
                                     }
 
                                     if (geoResult.results[i].address_components != null &&
@@ -603,7 +605,7 @@ namespace Asv.Avalonia.GMap
                                                 Debug.Write(
                                                     "Type: [" + geoResult.results[i].address_components[j].types[0] +
                                                     "], ");
-                                                Debug.WriteLine(
+                                                Logger.Trace(
                                                     "long_name: [" +
                                                     geoResult.results[i].address_components[j].long_name + "]");
 
@@ -692,7 +694,7 @@ namespace Asv.Avalonia.GMap
                     }
                     else
                     {
-                        Debug.WriteLine("GetPlacemarkFromReverseGeocoderUrl: " + geoResult.status);
+                        Logger.Trace("GetPlacemarkFromReverseGeocoderUrl: " + geoResult.status);
                     }
                 }
             }
@@ -700,7 +702,7 @@ namespace Asv.Avalonia.GMap
             {
                 status = GeoCoderStatusCode.EXCEPTION_IN_CODE;
                 placemarkList = null;
-                Debug.WriteLine("GetPlacemarkReverseGeocoderUrl: " + ex.ToString());
+                Logger.Trace("GetPlacemarkReverseGeocoderUrl: " + ex.ToString());
             }
 
             return status;
@@ -971,12 +973,12 @@ namespace Asv.Avalonia.GMap
                             if (directionResult.routes != null && directionResult.routes.Count > 0)
                             {
                                 direction.Summary = directionResult.routes[0].summary;
-                                Debug.WriteLine("summary: " + direction.Summary);
+                                Logger.Trace("summary: " + direction.Summary);
 
                                 if (directionResult.routes[0].copyrights != null)
                                 {
                                     direction.Copyrights = directionResult.routes[0].copyrights;
-                                    Debug.WriteLine("copyrights: " + direction.Copyrights);
+                                    Logger.Trace("copyrights: " + direction.Copyrights);
                                 }
 
                                 if (directionResult.routes[0].overview_polyline != null &&
@@ -990,19 +992,19 @@ namespace Asv.Avalonia.GMap
                                 if (directionResult.routes[0].legs != null && directionResult.routes[0].legs.Count > 0)
                                 {
                                     direction.Duration = directionResult.routes[0].legs[0].duration.text;
-                                    Debug.WriteLine("duration: " + direction.Duration);
+                                    Logger.Trace("duration: " + direction.Duration);
 
                                     direction.DurationValue = (uint)directionResult.routes[0].legs[0].duration.value;
-                                    Debug.WriteLine("value: " + direction.DurationValue);
+                                    Logger.Trace("value: " + direction.DurationValue);
 
                                     if (directionResult.routes[0].legs[0].distance != null)
                                     {
                                         direction.Distance = directionResult.routes[0].legs[0].distance.text;
-                                        Debug.WriteLine("distance: " + direction.Distance);
+                                        Logger.Trace("distance: " + direction.Distance);
 
                                         direction.DistanceValue =
                                             (uint)directionResult.routes[0].legs[0].distance.value;
-                                        Debug.WriteLine("value: " + direction.DistanceValue);
+                                        Logger.Trace("value: " + direction.DistanceValue);
                                     }
 
                                     if (directionResult.routes[0].legs[0].start_location != null)
@@ -1022,13 +1024,13 @@ namespace Asv.Avalonia.GMap
                                     if (directionResult.routes[0].legs[0].start_address != null)
                                     {
                                         direction.StartAddress = directionResult.routes[0].legs[0].start_address;
-                                        Debug.WriteLine("start_address: " + direction.StartAddress);
+                                        Logger.Trace("start_address: " + direction.StartAddress);
                                     }
 
                                     if (directionResult.routes[0].legs[0].end_address != null)
                                     {
                                         direction.EndAddress = directionResult.routes[0].legs[0].end_address;
-                                        Debug.WriteLine("end_address: " + direction.EndAddress);
+                                        Logger.Trace("end_address: " + direction.EndAddress);
                                     }
 
                                     direction.Steps = new List<GDirectionStep>();
@@ -1036,20 +1038,20 @@ namespace Asv.Avalonia.GMap
                                     for (int i = 0; i < directionResult.routes[0].legs[0].steps.Count; i++)
                                     {
                                         var step = new GDirectionStep();
-                                        Debug.WriteLine("----------------------");
+                                        Logger.Trace("----------------------");
 
                                         step.TravelMode = directionResult.routes[0].legs[0].steps[i].travel_mode;
-                                        Debug.WriteLine("travel_mode: " + step.TravelMode);
+                                        Logger.Trace("travel_mode: " + step.TravelMode);
 
                                         step.Duration = directionResult.routes[0].legs[0].steps[i].duration.text;
-                                        Debug.WriteLine("duration: " + step.Duration);
+                                        Logger.Trace("duration: " + step.Duration);
 
                                         step.Distance = directionResult.routes[0].legs[0].steps[i].distance.text;
-                                        Debug.WriteLine("distance: " + step.Distance);
+                                        Logger.Trace("distance: " + step.Distance);
 
                                         step.HtmlInstructions =
                                             directionResult.routes[0].legs[0].steps[i].html_instructions;
-                                        Debug.WriteLine("html_instructions: " + step.HtmlInstructions);
+                                        Logger.Trace("html_instructions: " + step.HtmlInstructions);
 
                                         if (directionResult.routes[0].legs[0].steps[i].start_location != null)
                                         {
@@ -1087,7 +1089,7 @@ namespace Asv.Avalonia.GMap
             {
                 direction = null;
                 ret = DirectionsStatusCode.EXCEPTION_IN_CODE;
-                Debug.WriteLine("GetDirectionsUrl: " + ex);
+                Logger.Trace("GetDirectionsUrl: " + ex);
             }
 
             return ret;
@@ -1208,7 +1210,7 @@ namespace Asv.Avalonia.GMap
             catch (Exception ex)
             {
                 ret = null;
-                Debug.WriteLine("GetRoutePoints: " + ex);
+                Logger.Trace("GetRoutePoints: " + ex);
             }
 
             return ret;

@@ -7,6 +7,7 @@ using System.Security.Cryptography;
 using System.Text;
 using Asv.Avalonia.GMap.China;
 using Asv.Avalonia.GMap.Korea;
+using NLog;
 
 namespace Asv.Avalonia.GMap
 {
@@ -15,6 +16,7 @@ namespace Asv.Avalonia.GMap
     /// </summary>
     public class GMapProviders
     {
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         static GMapProviders()
         {
             List = new List<GMapProvider>();
@@ -268,6 +270,7 @@ namespace Asv.Avalonia.GMap
     /// </summary>
     public abstract class GMapProvider
     {
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         /// <summary>
         ///     unique provider id
         /// </summary>
@@ -456,7 +459,7 @@ namespace Asv.Avalonia.GMap
 
         protected virtual bool CheckTileImageHttpResponse(WebResponse response)
         {
-            //Debug.WriteLine(response.StatusCode + "/" + response.StatusDescription + "/" + response.ContentType + " -> " + response.ResponseUri);
+            //Logger.Trace(response.StatusCode + "/" + response.StatusDescription + "/" + response.ContentType + " -> " + response.ResponseUri);
             return response.ContentType.Contains(responseContentType);
         }
 
@@ -537,7 +540,7 @@ namespace Asv.Avalonia.GMap
                     {
                         var data = Stuff.CopyStream(responseStream, false);
 
-                        Debug.WriteLine("Response[" + data.Length + " bytes]: " + url);
+                        Logger.Trace("Response[" + data.Length + " bytes]: " + url);
 
                         if (data.Length > 0)
                         {
@@ -557,7 +560,7 @@ namespace Asv.Avalonia.GMap
                 }
                 else
                 {
-                    Debug.WriteLine("CheckTileImageHttpResponse[false]: " + url);
+                    Logger.Trace("CheckTileImageHttpResponse[false]: " + url);
                 }
 
                 response.Close();

@@ -2,6 +2,7 @@
 using System.IO;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
+using NLog;
 
 namespace Asv.Avalonia.GMap
 {
@@ -34,6 +35,7 @@ namespace Asv.Avalonia.GMap
     /// </summary>
     public class MapImage : PureImage
     {
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         public IImage Img;
 
         public override void Dispose()
@@ -56,6 +58,7 @@ namespace Asv.Avalonia.GMap
     /// </summary>
     public class MapImageProxy : PureImageProxy
     {
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         private MapImageProxy()
         {
         }
@@ -84,7 +87,7 @@ namespace Asv.Avalonia.GMap
                     stream.Position = 0;
 
                     int type = stream.Length > 0 ? stream.ReadByte() : 0;
-                    Debug.WriteLine("WindowsPresentationImageProxy: unknown image format: " + type);
+                    Logger.Trace("WindowsPresentationImageProxy: unknown image format: " + type);
                 }
             }
 

@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using NLog;
 #if NET46
 using System.Collections.Concurrent;
 #endif
@@ -16,6 +17,7 @@ namespace Asv.Avalonia.GMap
     /// </summary>
     internal sealed class Core : IDisposable
     {
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         internal PointLatLng _position;
         private GPoint _positionPixel;
 
@@ -364,7 +366,7 @@ namespace Asv.Avalonia.GMap
             if (!IsStarted)
             {
                 int x = Interlocked.Increment(ref Instances);
-                Debug.WriteLine("OnMapOpen: " + x);
+                Logger.Trace("OnMapOpen: " + x);
 
                 IsStarted = true;
 
@@ -429,7 +431,7 @@ namespace Asv.Avalonia.GMap
                     skiped = false;
 
                     w.ReportProgress(1);
-                    Debug.WriteLine("Invalidate delta: " + (int)delta.TotalMilliseconds + "ms");
+                    Logger.Trace("Invalidate delta: " + (int)delta.TotalMilliseconds + "ms");
                 }
                 else
                 {
@@ -467,7 +469,7 @@ namespace Asv.Avalonia.GMap
                 _sizeOfMapArea.Height = 1 + Height / Provider.Projection.TileSize.Height / 2;
             }
 
-            Debug.WriteLine("OnMapSizeChanged, w: " + width + ", h: " + height + ", size: " + _sizeOfMapArea);
+            Logger.Trace("OnMapSizeChanged, w: " + width + ", h: " + height + ", size: " + _sizeOfMapArea);
 
             if (IsStarted)
             {
@@ -587,7 +589,7 @@ namespace Asv.Avalonia.GMap
         {
             if (IsStarted)
             {
-                Debug.WriteLine("------------------");
+                Logger.Trace("------------------");
 
                 _okZoom = 0;
                 _skipOverZoom = 0;
@@ -809,19 +811,19 @@ namespace Asv.Avalonia.GMap
 
                         while (_tileLoadQueue4Tasks.Count < GThreadPoolSize)
                         {
-                            Debug.WriteLine("creating ProcessLoadTask: " + _tileLoadQueue4Tasks.Count);
+                            Logger.Trace("creating ProcessLoadTask: " + _tileLoadQueue4Tasks.Count);
 
                             _tileLoadQueue4Tasks.Add(Task.Factory.StartNew(delegate()
                                 {
                                     string ctid = "ProcessLoadTask[" + Thread.CurrentThread.ManagedThreadId + "]";
                                     Thread.CurrentThread.Name = ctid;
 
-                                    Debug.WriteLine(ctid + ": started");
+                                    Logger.Trace(ctid + ": started");
                                     do
                                     {
                                         if (TileLoadQueue4.Count == 0)
                                         {
-                                            Debug.WriteLine(ctid + ": ready");
+                                            Logger.Trace(ctid + ": ready");
 
                                             if (Interlocked.Increment(ref _loadWaitCount) >= GThreadPoolSize)
                                             {
@@ -833,7 +835,7 @@ namespace Asv.Avalonia.GMap
                                         ProcessLoadTask(TileLoadQueue4.Take(), ctid);
                                     } while (!TileLoadQueue4.IsAddingCompleted);
 
-                                    Debug.WriteLine(ctid + ": exit");
+                                    Logger.Trace(ctid + ": exit");
                                 },
                                 TaskCreationOptions.LongRunning));
                         }
@@ -862,7 +864,7 @@ namespace Asv.Avalonia.GMap
                 {
                     while (TileLoadQueue.Count == 0)
                     {
-                        Debug.WriteLine(ctid + " - Wait " + _loadWaitCount + " - " + DateTime.Now.TimeOfDay);
+                        Logger.Trace(ctid + " - Wait " + _loadWaitCount + " - " + DateTime.Now.TimeOfDay);
 
                         if (++_loadWaitCount >= GThreadPoolSize)
                         {
@@ -896,7 +898,7 @@ namespace Asv.Avalonia.GMap
             Monitor.Enter(TileLoadQueue);
             try
             {
-                Debug.WriteLine("Quit - " + ct.Name);
+                Logger.Trace("Quit - " + ct.Name);
                 lock (_gThreadPool)
                 {
                     _gThreadPool.Remove(ct);
@@ -924,7 +926,7 @@ namespace Asv.Avalonia.GMap
                 var m = task.Core.Matrix.GetTileWithReadLock(task.Zoom, task.Pos);
                 if (!m.NotEmpty)
                 {
-                    Debug.WriteLine(ctid + " - try load: " + task);
+                    Logger.Trace(ctid + " - try load: " + task);
 
                     var t = new Tile(task.Zoom, task.Pos);
 
@@ -962,7 +964,7 @@ namespace Asv.Avalonia.GMap
                                 {
                                     task.Core._okZoom = task.Zoom;
                                     task.Core._skipOverZoom = 0;
-                                    Debug.WriteLine("skipOverZoom disabled, okZoom: " + task.Core._okZoom);
+                                    Logger.Trace("skipOverZoom disabled, okZoom: " + task.Core._okZoom);
                                 }
                             }
                             else if (ex != null)
@@ -972,7 +974,7 @@ namespace Asv.Avalonia.GMap
                                     if (ex.Message.Contains("(404) Not Found"))
                                     {
                                         task.Core._skipOverZoom = task.Core._okZoom;
-                                        Debug.WriteLine("skipOverZoom enabled: " + task.Core._skipOverZoom);
+                                        Logger.Trace("skipOverZoom enabled: " + task.Core._skipOverZoom);
                                     }
                                 }
                             }
@@ -1015,7 +1017,7 @@ namespace Asv.Avalonia.GMap
 
                             if (img != null)
                             {
-                                Debug.WriteLine(ctid + " - tile loaded: " + img.Data.Length / 1024 + "KB, " + task);
+                                Logger.Trace(ctid + " - tile loaded: " + img.Data.Length / 1024 + "KB, " + task);
                                 {
                                     t.AddOverlay(img);
                                 }
@@ -1045,7 +1047,7 @@ namespace Asv.Avalonia.GMap
 
                                 if (task.Core.RetryLoadTile > 0)
                                 {
-                                    Debug.WriteLine(ctid + " - ProcessLoadTask: " + task + " -> empty tile, retry " +
+                                    Logger.Trace(ctid + " - ProcessLoadTask: " + task + " -> empty tile, retry " +
                                                     retry);
                                     {
                                         Thread.Sleep(1111);
@@ -1069,7 +1071,7 @@ namespace Asv.Avalonia.GMap
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(ctid + " - ProcessLoadTask: " + ex.ToString());
+                Logger.Trace(ctid + " - ProcessLoadTask: " + ex.ToString());
             }
             finally
             {
@@ -1110,7 +1112,7 @@ namespace Asv.Avalonia.GMap
             GC.WaitForPendingFinalizers();
             GC.Collect();
 #endif
-            Debug.WriteLine(ctid + " - OnTileLoadComplete: " + lastTileLoadTimeMs + "ms, MemoryCacheSize: " +
+            Logger.Trace(ctid + " - OnTileLoadComplete: " + lastTileLoadTimeMs + "ms, MemoryCacheSize: " +
                             GMaps.Instance.MemoryCache.Size + "MB");
 
             if (OnTileLoadComplete != null)
@@ -1251,7 +1253,7 @@ namespace Asv.Avalonia.GMap
 
                         _gThreadPool.Add(t);
 
-                        Debug.WriteLine("add " + t.Name + " to GThreadPool");
+                        Logger.Trace("add " + t.Name + " to GThreadPool");
 
                         t.Start();
                     }
@@ -1260,7 +1262,7 @@ namespace Asv.Avalonia.GMap
 #endif
             {
                 _lastTileLoadStart = DateTime.Now;
-                Debug.WriteLine("OnTileLoadStart - at zoom " + Zoom + ", time: " + _lastTileLoadStart.TimeOfDay);
+                Logger.Trace("OnTileLoadStart - at zoom " + Zoom + ", time: " + _lastTileLoadStart.TimeOfDay);
             }
 #if !NET46
                 _loadWaitCount = 0;
@@ -1320,7 +1322,7 @@ namespace Asv.Avalonia.GMap
                 }
 
                 int x = Interlocked.Decrement(ref Instances);
-                Debug.WriteLine("OnMapClose: " + x);
+                Logger.Trace("OnMapClose: " + x);
 
                 CancelAsyncTasks();
                 IsStarted = false;

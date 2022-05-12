@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
+using NLog;
 using static System.Math;
 
 namespace Asv.Avalonia.GMap
@@ -11,6 +12,8 @@ namespace Asv.Avalonia.GMap
     /// </summary>
     public abstract class PureProjection
     {
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+
         private readonly List<Dictionary<PointLatLng, GPoint>> _fromLatLngToPixelCache =
             new List<Dictionary<PointLatLng, GPoint>>(33);
 
@@ -96,7 +99,7 @@ namespace Asv.Avalonia.GMap
                         _fromPixelToLatLngCache[zoom].Add(ret, p);
                     }
 
-                    Debug.WriteLine("FromLatLngToPixelCache[" + zoom + "] added " + p + " with " + ret);
+                    Logger.Trace("FromLatLngToPixelCache[" + zoom + "] added " + p + " with " + ret);
                 }
 
                 return ret;
@@ -135,7 +138,7 @@ namespace Asv.Avalonia.GMap
                         _fromLatLngToPixelCache[zoom].Add(ret, p);
                     }
 
-                    Debug.WriteLine("FromPixelToLatLngCache[" + zoom + "] added " + p + " with " + ret);
+                    Logger.Trace("FromPixelToLatLngCache[" + zoom + "] added " + p + " with " + ret);
                 }
 
                 return ret;

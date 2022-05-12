@@ -17,12 +17,14 @@ using Avalonia.Input;
 using Avalonia.LogicalTree;
 using Avalonia.Media;
 using Avalonia.VisualTree;
+using NLog;
 using ReactiveUI;
 
 namespace Asv.Avalonia.GMap
 {
     public class MapView : SelectingItemsControl,IActivatableView,IDisposable
     {
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         private const double MinimumHorizontalDragDistance = 50;
         private const double MinimumVerticalDragDistance = 50;
 
@@ -788,7 +790,7 @@ namespace Asv.Avalonia.GMap
             // http://greatmaps.codeplex.com/workitem/16013
             if ((e.Timestamp & UInt32.MaxValue) - _onMouseUpTimestamp < 55)
             {
-                Debug.WriteLine("OnMouseMove skipped: " + ((e.Timestamp & Int32.MaxValue) - _onMouseUpTimestamp) + "ms");
+                Logger.Trace("OnMouseMove skipped: " + ((e.Timestamp & Int32.MaxValue) - _onMouseUpTimestamp) + "ms");
                 return;
             }
 
@@ -820,7 +822,7 @@ namespace Asv.Avalonia.GMap
                 if (!IsDragging)
                 {
                     IsDragging = true;
-                    Debug.WriteLine("IsDragging = " + IsDragging);
+                    Logger.Trace("IsDragging = " + IsDragging);
                     _cursorBefore = Cursor;
                     Cursor = new Cursor(StandardCursorType.SizeAll);
                     _mouse.Capture(this);
@@ -876,7 +878,7 @@ namespace Asv.Avalonia.GMap
                 {
                     _onMouseUpTimestamp = e.Timestamp & ulong.MaxValue;
                     IsDragging = false;
-                    Debug.WriteLine("IsDragging = " + IsDragging);
+                    Logger.Trace("IsDragging = " + IsDragging);
                     Cursor = _cursorBefore;
                     _mouse.Capture(null);
                 }

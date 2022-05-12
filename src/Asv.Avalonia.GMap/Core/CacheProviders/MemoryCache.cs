@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Diagnostics;
+using NLog;
 
 namespace Asv.Avalonia.GMap
 {
     public class MemoryCache : IDisposable
     {
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         private readonly KiberTileCache _tilesInMemory = new KiberTileCache();
 
         private FastReaderWriterLock _kiberCacheLock = new FastReaderWriterLock();
@@ -112,7 +114,7 @@ namespace Asv.Avalonia.GMap
 #if DEBUG
             else
             {
-                Debug.WriteLine("adding empty data to MemoryCache ;} ");
+                Logger.Trace("adding empty data to MemoryCache ;} ");
                 if (Debugger.IsAttached)
                 {
                     Debugger.Break();

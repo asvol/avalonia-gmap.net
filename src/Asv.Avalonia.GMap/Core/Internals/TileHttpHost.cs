@@ -5,11 +5,13 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using NLog;
 
 namespace Asv.Avalonia.GMap
 {
     internal class TileHttpHost
     {
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         volatile bool _listen;
         TcpListener _server;
         int _port;
@@ -64,7 +66,7 @@ namespace Asv.Avalonia.GMap
 
             var t = new Thread(() =>
             {
-                Debug.WriteLine("TileHttpHost: " + _server.LocalEndpoint);
+                Logger.Trace("TileHttpHost: " + _server.LocalEndpoint);
 
                 while (_listen)
                 {
@@ -81,11 +83,11 @@ namespace Asv.Avalonia.GMap
                     }
                     catch (Exception ex)
                     {
-                        Debug.WriteLine("TileHttpHost: " + ex);
+                        Logger.Trace("TileHttpHost: " + ex);
                     }
                 }
 
-                Debug.WriteLine("TileHttpHost: stoped");
+                Logger.Trace("TileHttpHost: stoped");
             });
 
             t.Name = "TileHost";
@@ -107,7 +109,7 @@ namespace Asv.Avalonia.GMap
 
                             if (!string.IsNullOrEmpty(request) && request.StartsWith("GET"))
                             {
-                                //Debug.WriteLine("TileHttpHost: " + request);
+                                //Logger.Trace("TileHttpHost: " + request);
 
                                 // http://localhost:88/88888/5/15/11
                                 // GET /8888888888/5/15/11 HTTP/1.1
@@ -148,10 +150,10 @@ namespace Asv.Avalonia.GMap
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("TileHttpHost, ProcessRequest: " + ex);
+                Logger.Trace("TileHttpHost, ProcessRequest: " + ex);
             }
 
-            //Debug.WriteLine("disconnected");
+            //Logger.Trace("disconnected");
         }
     }
 }

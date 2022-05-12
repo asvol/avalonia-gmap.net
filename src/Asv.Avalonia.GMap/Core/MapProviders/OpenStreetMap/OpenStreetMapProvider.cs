@@ -4,11 +4,13 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Net;
 using System.Xml;
+using NLog;
 
 namespace Asv.Avalonia.GMap
 {
     public abstract class OpenStreetMapProviderBase : GMapProvider, RoutingProvider, GeocodingProvider
     {
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         public OpenStreetMapProviderBase()
         {
             MaxZoom = null;
@@ -190,7 +192,7 @@ namespace Asv.Avalonia.GMap
             catch (Exception ex)
             {
                 ret = null;
-                Debug.WriteLine("GetRoute: " + ex);
+                Logger.Trace("GetRoute: " + ex);
             }
 
             return ret;
@@ -413,7 +415,7 @@ namespace Asv.Avalonia.GMap
             catch (Exception ex)
             {
                 status = GeoCoderStatusCode.EXCEPTION_IN_CODE;
-                Debug.WriteLine("GetLatLngFromGeocoderUrl: " + ex);
+                Logger.Trace("GetLatLngFromGeocoderUrl: " + ex);
             }
 
             return status;
@@ -512,7 +514,7 @@ namespace Asv.Avalonia.GMap
             {
                 ret = null;
                 status = GeoCoderStatusCode.EXCEPTION_IN_CODE;
-                Debug.WriteLine("GetPlacemarkFromReverseGeocoderUrl: " + ex);
+                Logger.Trace("GetPlacemarkFromReverseGeocoderUrl: " + ex);
             }
 
             return ret;

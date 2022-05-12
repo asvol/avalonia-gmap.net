@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Xml;
+using NLog;
 
 namespace Asv.Avalonia.GMap
 {
     public abstract class CloudMadeMapProviderBase : GMapProvider, RoutingProvider, DirectionsProvider
     {
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         public readonly string ServerLetters = "abc";
         public readonly string DoubleResolutionString = "@2x";
 
@@ -221,7 +223,7 @@ namespace Asv.Avalonia.GMap
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("GetRoutePoints: " + ex);
+                Logger.Trace("GetRoutePoints: " + ex);
             }
 
             return points;
@@ -534,7 +536,7 @@ namespace Asv.Avalonia.GMap
             {
                 ret = DirectionsStatusCode.EXCEPTION_IN_CODE;
                 direction = null;
-                Debug.WriteLine("GetDirectionsUrl: " + ex);
+                Logger.Trace("GetDirectionsUrl: " + ex);
             }
 
             return ret;

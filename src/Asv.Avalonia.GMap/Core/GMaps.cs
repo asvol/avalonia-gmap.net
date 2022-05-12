@@ -10,6 +10,7 @@ using System.Threading;
 using System.Xml;
 using System.Xml.Serialization;
 using GMap.NET;
+using NLog;
 
 namespace Asv.Avalonia.GMap
 {
@@ -18,6 +19,7 @@ namespace Asv.Avalonia.GMap
     /// </summary>
     public class GMaps
     {
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         /// <summary>
         ///     tile access mode
         /// </summary>
@@ -199,7 +201,7 @@ namespace Asv.Avalonia.GMap
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine("GMaps, try set TileImageProxy failed: " + ex.Message);
+                    Logger.Trace("GMaps, try set TileImageProxy failed: " + ex.Message);
                 }
             }
         }
@@ -303,7 +305,7 @@ namespace Asv.Avalonia.GMap
             {
                 if (!_tileCacheQueue.Contains(task))
                 {
-                    Debug.WriteLine("EnqueueCacheTask: " + task);
+                    Logger.Trace("EnqueueCacheTask: " + task);
 
                     _tileCacheQueue.Enqueue(task);
 
@@ -339,7 +341,7 @@ namespace Asv.Avalonia.GMap
         /// </summary>
         public void CancelTileCaching()
         {
-            Debug.WriteLine("CancelTileCaching...");
+            Logger.Trace("CancelTileCaching...");
 
             _abortCacheLoop = true;
             lock (_tileCacheQueue)
@@ -389,7 +391,7 @@ namespace Asv.Avalonia.GMap
         /// </summary>
         void CacheEngineLoop()
         {
-            Debug.WriteLine("CacheEngine: start");
+            Logger.Trace("CacheEngine: start");
             int left;
 
             if (OnTileCacheStart != null)
@@ -436,8 +438,8 @@ namespace Asv.Avalonia.GMap
                         // check if stream wasn't disposed somehow
                         if (task.Value.Img != null)
                         {
-                            Debug.WriteLine("CacheEngine[" + left + "]: storing tile " + task.Value + ", " +
-                                            task.Value.Img.Length / 1024 + "kB...");
+                            Logger.Trace("CacheEngine[" + left + "]: storing tile " + task.Value + ", " +
+                                              task.Value.Img.Length / 1024 + "kB...");
 
                             if ((task.Value.CacheType & CacheUsage.First) == CacheUsage.First && PrimaryCache != null)
                             {
@@ -481,7 +483,7 @@ namespace Asv.Avalonia.GMap
                         }
                         else
                         {
-                            Debug.WriteLine("CacheEngineLoop: skip, tile disposed to early -> " + task.Value);
+                            Logger.Trace("CacheEngineLoop: skip, tile disposed to early -> " + task.Value);
                         }
 
                         #endregion
@@ -510,11 +512,11 @@ namespace Asv.Avalonia.GMap
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine("CacheEngineLoop: " + ex.ToString());
+                    Logger.Trace("CacheEngineLoop: " + ex.ToString());
                 }
             }
 
-            Debug.WriteLine("CacheEngine: stop");
+            Logger.Trace("CacheEngine: stop");
 
             if (!startEvent)
             {
@@ -668,7 +670,7 @@ namespace Asv.Avalonia.GMap
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("ExportGPX: " + ex.ToString());
+                Logger.Trace("ExportGPX: " + ex.ToString());
                 return false;
             }
 
@@ -706,8 +708,8 @@ namespace Asv.Avalonia.GMap
                             if (ret == null)
                             {
 #if DEBUG
-                                Debug.WriteLine("Image disposed in MemoryCache o.O, should never happen ;} " +
-                                                new RawTile(provider.DbId, pos, zoom));
+                                Logger.Trace("Image disposed in MemoryCache o.O, should never happen ;} " +
+                                                  new RawTile(provider.DbId, pos, zoom));
                                 if (Debugger.IsAttached)
                                 {
                                     Debugger.Break();
@@ -793,7 +795,7 @@ namespace Asv.Avalonia.GMap
             {
                 result = ex;
                 ret = null;
-                Debug.WriteLine("GetImageFrom: " + ex.ToString());
+                Logger.Trace("GetImageFrom: " + ex.ToString());
             }
 
             return ret;

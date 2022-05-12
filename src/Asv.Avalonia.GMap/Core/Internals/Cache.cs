@@ -3,11 +3,13 @@ using System.Diagnostics;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
+using NLog;
 
 namespace Asv.Avalonia.GMap
 {
     internal class CacheLocator
     {
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         private static string _location;
 
         public static string Location
@@ -84,6 +86,7 @@ namespace Asv.Avalonia.GMap
     /// </summary>
     internal class Cache
     {
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         /// <summary>
         ///     abstract image cache
         /// </summary>
@@ -195,7 +198,7 @@ namespace Asv.Avalonia.GMap
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("SaveContent: " + ex);
+                Logger.Trace("SaveContent: " + ex);
             }
         }
 
@@ -229,7 +232,7 @@ namespace Asv.Avalonia.GMap
             catch (Exception ex)
             {
                 ret = null;
-                Debug.WriteLine("GetContent: " + ex);
+                Logger.Trace("GetContent: " + ex);
             }
 
             return ret;

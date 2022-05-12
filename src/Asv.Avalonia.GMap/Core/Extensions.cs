@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Runtime.Serialization;
+using NLog;
 
 namespace Asv.Avalonia.GMap
 {
     public static class Extensions
     {
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         /// <summary>
         ///     Retrieves a value from the SerializationInfo of the given type.
         /// </summary>
@@ -22,7 +24,7 @@ namespace Asv.Avalonia.GMap
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("Extensions.GetValue: " + ex.Message);
+                Logger.Trace("Extensions.GetValue: " + ex.Message);
                 return null;
             }
         }
@@ -62,7 +64,7 @@ namespace Asv.Avalonia.GMap
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("Extensions.GetStruct: " + ex.Message);
+                Logger.Trace("Extensions.GetStruct: " + ex.Message);
                 return defaultValue;
             }
         }
@@ -84,7 +86,7 @@ namespace Asv.Avalonia.GMap
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("Extensions.GetStruct: " + ex.Message);
+                Logger.Trace("Extensions.GetStruct: " + ex.Message);
                 return defaultValue;
             }
         }

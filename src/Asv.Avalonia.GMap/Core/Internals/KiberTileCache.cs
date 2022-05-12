@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using NLog;
 
 namespace Asv.Avalonia.GMap
 {
@@ -9,6 +10,7 @@ namespace Asv.Avalonia.GMap
     /// </summary>
     internal class KiberTileCache : Dictionary<RawTile, byte[]>
     {
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         public KiberTileCache() : base(new RawTileComparer())
         {
         }
@@ -70,7 +72,7 @@ namespace Asv.Avalonia.GMap
                     }
                     catch (Exception ex)
                     {
-                        Debug.WriteLine("RemoveMemoryOverload: " + ex);
+                        Logger.Trace("RemoveMemoryOverload: " + ex);
                     }
                 }
                 else

@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Xml;
+using NLog;
 
 namespace Asv.Avalonia.GMap
 {
     public abstract class YahooMapProviderBase : GMapProvider, GeocodingProvider
     {
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         public YahooMapProviderBase()
         {
             RefererUrl = "http://maps.yahoo.com/";
@@ -241,7 +243,7 @@ namespace Asv.Avalonia.GMap
             catch (Exception ex)
             {
                 status = GeoCoderStatusCode.EXCEPTION_IN_CODE;
-                Debug.WriteLine("GetLatLngFromGeocoderUrl: " + ex);
+                Logger.Trace("GetLatLngFromGeocoderUrl: " + ex);
             }
 
             return status;
@@ -366,7 +368,7 @@ namespace Asv.Avalonia.GMap
             catch (Exception ex)
             {
                 status = GeoCoderStatusCode.EXCEPTION_IN_CODE;
-                Debug.WriteLine("GetPlacemarkFromReverseGeocoderUrl: " + ex);
+                Logger.Trace("GetPlacemarkFromReverseGeocoderUrl: " + ex);
             }
 
             return status;
