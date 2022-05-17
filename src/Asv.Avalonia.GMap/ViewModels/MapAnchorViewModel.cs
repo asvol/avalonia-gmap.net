@@ -24,7 +24,34 @@ namespace Asv.Avalonia.GMap
     }
 
 
-    public class MapAnchorViewModel: ReactiveObject
+    public interface IMapAnchorViewModel
+    {
+        bool IsEditable { get; set; }
+        int ZOrder { get; set; }
+        OffsetXEnum OffsetX { get; set; }
+        OffsetYEnum OffsetY { get; set; }
+        bool IsSelected { get; set; }
+        bool IsVisible { get; set; }
+        double Altitude { get; set; }
+        PointLatLng Location { get; set; }
+        MaterialIconKind Icon { get; set; }
+        double RotateCenterX { get; set; }
+        double RotateCenterY { get; set; }
+        IBrush IconBrush { get; set; }
+        double RotateAngle { get; set; }
+        string Title { get; set; }
+        string Description { get; set; }
+        double Size { get; set; }
+        ReadOnlyObservableCollection<MapAnchorActionViewModel> Actions { get; }
+        ReadOnlyObservableCollection<PointLatLng> Path { get; }
+        IBrush Fill { get; set; }
+        IBrush Stroke { get; set; }
+        double StrokeThickness { get; set; }
+        AvaloniaList<double> StrokeDashArray { get; set; }
+        double PathOpacity { get; set; }
+    }
+
+    public class MapAnchorViewModel: ReactiveObject, IMapAnchorViewModel
     {
         public MapAnchorViewModel()
         {
