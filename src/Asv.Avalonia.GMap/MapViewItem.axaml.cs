@@ -164,8 +164,8 @@ namespace Asv.Avalonia.GMap
             var child = LogicalChildren.FirstOrDefault() as Visual;
             if (child == null) return;
 
-            var pathPoints = MapView.GetPath(child);
-            if (pathPoints is { Count: > 1 })
+            var pathPoints = MapView.GetPath(child)?.ToArray();
+            if (pathPoints is { Length: > 1 })
             {
                 
                 IsShapeNotAvailable = false;// this is for hide content and draw only path
@@ -174,19 +174,29 @@ namespace Asv.Avalonia.GMap
                     _firstCall = false;
                     UpdatePathCollection();
                 }
-                var localPath = new List<GPoint>(pathPoints.Count);
-                foreach (var p in pathPoints.ToArray())
+                var localPath = new List<GPoint>(pathPoints.Length);
+                var minX = long.MaxValue;
+                var minY = long.MaxValue;
+                foreach (var p in pathPoints)
                 {
                     var itemPoint = _map.FromLatLngToLocal(p);
                     itemPoint.Offset(-(long)(_map.MapTranslateTransform.X), -(long)(_map.MapTranslateTransform.Y));
+                    if (itemPoint.X < minX)
+                    {
+                        minX = itemPoint.X;
+                    }
+                    if (itemPoint.Y < minY)
+                    {
+                        minY = itemPoint.X;
+                    }
                     localPath.Add(itemPoint);
                 }
 
-                var minX = localPath.Min(_ => _.X);
-                var minY = localPath.Min(_ => _.Y);
+                
                 Canvas.SetLeft(this, minX);
                 Canvas.SetTop(this, minY);
-                var truePath = new List<Point>(pathPoints.Count);
+                
+                var truePath = new List<Point>(pathPoints.Length);
                 foreach (var p in localPath)
                 {
                     p.Offset(-minX,-minY);
@@ -235,10 +245,12 @@ namespace Asv.Avalonia.GMap
             set => SetValue(ShapeProperty, value);
         }
 
-        public static Path CreatePath(List<Point> localPath, IBrush stroke, IBrush fill,double thickness, AvaloniaList<double> dash, double opacity )
+        public Path CreatePath(List<Point> localPath, IBrush stroke, IBrush fill,double thickness, AvaloniaList<double> dash, double opacity )
         {
-            // Create a StreamGeometry to use to specify myPath.
+            // Create a StreamGeometry to use to specify _myPath.
             var geometry = new StreamGeometry();
+
+            
             geometry.BeginBatchUpdate();
             using (var ctx = geometry.Open())
             {
@@ -246,38 +258,82 @@ namespace Asv.Avalonia.GMap
                 // Draw a line to the next specified point.
                 foreach (var path in localPath)
                 {
-                    ctx.LineTo(path);
+                   ctx.LineTo(path);
                 }
                 //ctx.PolyLineTo(localPath, true, true);
             }
 
             // Freeze the geometry (make it unmodifiable)
             // for additional performance benefits.
-            //geometry.Freeze();
             geometry.EndBatchUpdate();
-            // Create a path to draw a geometry with.
-            var myPath = new Path();
+            if (_myPath == null)
             {
-                // Specify the shape of the Path using the StreamGeometry.
-                myPath.Data = geometry;
-                myPath.Stroke = stroke;
-                myPath.StrokeThickness = thickness;
-                myPath.StrokeDashArray = dash;
-                myPath.StrokeJoin = PenLineJoin.Round;
-                myPath.StrokeLineCap = PenLineCap.Square;
-                myPath.Fill = fill;
-                myPath.Opacity = opacity;
-                myPath.IsHitTestVisible = false;
-                
+                // Create a path to draw a geometry with.
+                _myPath = new Path();
+                {
+                    // Specify the shape of the Path using the StreamGeometry.
+                    _myPath.Data = geometry;
+                    _myPath.Stroke = stroke;
+                    _myPath.StrokeThickness = thickness;
+                    _myPath.StrokeDashArray = dash;
+                    _myPath.Fill = fill;
+                    _myPath.Opacity = opacity;
+                    _myPath.StrokeJoin = PenLineJoin.Round;
+                    _myPath.StrokeLineCap = PenLineCap.Square;
+                    _myPath.IsHitTestVisible = false;
+                }
             }
-            return myPath;
+            else
+            {
+                _myPath.Data = geometry;
+                _myPath.Stroke = stroke;
+                _myPath.StrokeThickness = thickness;
+                _myPath.StrokeDashArray = dash;
+                _myPath.Fill = fill;
+                _myPath.Opacity = opacity;
+            }
+            
+            return _myPath;
         }
 
+
+        public static IEnumerable<TSource[]> Chunked<TSource>(IEnumerable<TSource> source, int size)
+        {
+            return ChunkIterator(source, size);
+        }
+
+        private static IEnumerable<TSource[]> ChunkIterator<TSource>(IEnumerable<TSource> source, int size)
+        {
+            if (size <= 0) throw new ArgumentOutOfRangeException(nameof(size));
+            using IEnumerator<TSource> e = source.GetEnumerator();
+            while (e.MoveNext())
+            {
+                TSource[] chunk = new TSource[size];
+                chunk[0] = e.Current;
+
+                int i = 1;
+                for (; i < chunk.Length && e.MoveNext(); i++)
+                {
+                    chunk[i] = e.Current;
+                }
+
+                if (i == chunk.Length)
+                {
+                    yield return chunk;
+                }
+                else
+                {
+                    Array.Resize(ref chunk, i);
+                    yield return chunk;
+                    yield break;
+                }
+            }
+        }
 
         public static readonly StyledProperty<bool> IsSelectedProperty =
             AvaloniaProperty.Register<MapViewItem, bool>(nameof(IsSelected));
 
-        
+        private Path _myPath;
 
         public bool IsSelected
         {

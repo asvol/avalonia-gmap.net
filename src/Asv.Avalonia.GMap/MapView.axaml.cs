@@ -82,6 +82,7 @@ namespace Asv.Avalonia.GMap
             Disposable.Add(_core);
             _core.SystemType = "WindowsPresentation";
             _core.RenderMode = RenderMode.WPF;
+            
             Zoom = _core.MaxZoom;
             MinZoom = _core.MinZoom;
             MaxZoom = _core.MaxZoom;
@@ -264,8 +265,6 @@ namespace Asv.Avalonia.GMap
 
         private void ForceUpdateOverlays()
         {
-            if (MapCanvas == null) return;
-
             UpdateMarkersOffset();
             foreach (var obj in LogicalChildren.Cast<MapViewItem>())
             {
