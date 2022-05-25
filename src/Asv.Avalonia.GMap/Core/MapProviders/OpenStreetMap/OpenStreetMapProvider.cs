@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Net;
 using System.Xml;
+using Asv.Tools;
 using NLog;
 
 namespace Asv.Avalonia.GMap
@@ -66,10 +67,10 @@ namespace Asv.Avalonia.GMap
 
         #region GMapRoutingProvider Members
 
-        public virtual MapRoute GetRoute(PointLatLng start, PointLatLng end, bool avoidHighways, bool walkingMode,
+        public virtual MapRoute GetRoute(GeoPoint start, GeoPoint end, bool avoidHighways, bool walkingMode,
             int zoom)
         {
-            //List<PointLatLng> points = GetRoutePoints(MakeRoutingUrl(start, end, walkingMode ? TravelTypeFoot : TravelTypeMotorCar));
+            //List<GeoPoint> points = GetRoutePoints(MakeRoutingUrl(start, end, walkingMode ? TravelTypeFoot : TravelTypeMotorCar));
             //MapRoute route = points != null ? new MapRoute(points, walkingMode ? WalkingStr : DrivingStr) : null;
             //return route;
             return GetRoute(MakeRoutingUrl(start, end, walkingMode ? TravelTypeFoot : TravelTypeMotorCar));
@@ -86,12 +87,12 @@ namespace Asv.Avalonia.GMap
         /// <returns></returns>
         public virtual MapRoute GetRoute(string start, string end, bool avoidHighways, bool walkingMode, int zoom)
         {
-            throw new NotImplementedException("use GetRoute(PointLatLng start, PointLatLng end...");
+            throw new NotImplementedException("use GetRoute(GeoPoint start, GeoPoint end...");
         }
 
         #region -- internals --
 
-        string MakeRoutingUrl(PointLatLng start, PointLatLng end, string travelType)
+        string MakeRoutingUrl(GeoPoint start, GeoPoint end, string travelType)
         {
             return string.Format(CultureInfo.InvariantCulture,
                 RoutingUrlFormat,
@@ -158,7 +159,7 @@ namespace Asv.Avalonia.GMap
                                 {
                                     double lat = double.Parse(xy[1], CultureInfo.InvariantCulture);
                                     double lng = double.Parse(xy[0], CultureInfo.InvariantCulture);
-                                    ret.Points.Add(new PointLatLng(lat, lng));
+                                    ret.Points.Add(new GeoPoint(lat, lng));
                                 }
                             }
                         }
@@ -213,7 +214,7 @@ namespace Asv.Avalonia.GMap
 
         #region GeocodingProvider Members
 
-        public GeoCoderStatusCode GetPoints(string keywords, out List<PointLatLng> pointList)
+        public GeoCoderStatusCode GetPoints(string keywords, out List<GeoPoint> pointList)
         {
             // http://nominatim.openstreetmap.org/search?q=lithuania,vilnius&format=xml
 
@@ -231,14 +232,14 @@ namespace Asv.Avalonia.GMap
             return GetLatLngFromGeocoderUrl(MakeGeocoderUrl(keywords), out pointList);
         }
 
-        public PointLatLng? GetPoint(string keywords, out GeoCoderStatusCode status)
+        public GeoPoint? GetPoint(string keywords, out GeoCoderStatusCode status)
         {
-            List<PointLatLng> pointList;
+            List<GeoPoint> pointList;
             status = GetPoints(keywords, out pointList);
-            return pointList != null && pointList.Count > 0 ? pointList[0] : (PointLatLng?)null;
+            return pointList != null && pointList.Count > 0 ? pointList[0] : (GeoPoint?)null;
         }
 
-        public GeoCoderStatusCode GetPoints(Placemark placemark, out List<PointLatLng> pointList)
+        public GeoCoderStatusCode GetPoints(Placemark placemark, out List<GeoPoint> pointList)
         {
             // http://nominatim.openstreetmap.org/search?street=&city=vilnius&county=&state=&country=lithuania&postalcode=&format=xml
 
@@ -253,19 +254,19 @@ namespace Asv.Avalonia.GMap
             return GetLatLngFromGeocoderUrl(MakeDetailedGeocoderUrl(placemark), out pointList);
         }
 
-        public PointLatLng? GetPoint(Placemark placemark, out GeoCoderStatusCode status)
+        public GeoPoint? GetPoint(Placemark placemark, out GeoCoderStatusCode status)
         {
-            List<PointLatLng> pointList;
+            List<GeoPoint> pointList;
             status = GetPoints(placemark, out pointList);
-            return pointList != null && pointList.Count > 0 ? pointList[0] : (PointLatLng?)null;
+            return pointList != null && pointList.Count > 0 ? pointList[0] : (GeoPoint?)null;
         }
 
-        public GeoCoderStatusCode GetPlacemarks(PointLatLng location, out List<Placemark> placemarkList)
+        public GeoCoderStatusCode GetPlacemarks(GeoPoint location, out List<Placemark> placemarkList)
         {
             throw new NotImplementedException("use GetPlacemark");
         }
 
-        public Placemark? GetPlacemark(PointLatLng location, out GeoCoderStatusCode status)
+        public Placemark? GetPlacemark(GeoPoint location, out GeoCoderStatusCode status)
         {
             //http://nominatim.openstreetmap.org/reverse?format=xml&lat=52.5487429714954&lon=-1.81602098644987&zoom=18&addressdetails=1
 
@@ -336,12 +337,12 @@ namespace Asv.Avalonia.GMap
                 placemark.PostalCodeNumber.Replace(' ', '+'));
         }
 
-        string MakeReverseGeocoderUrl(PointLatLng pt)
+        string MakeReverseGeocoderUrl(GeoPoint pt)
         {
             return string.Format(CultureInfo.InvariantCulture, ReverseGeocoderUrlFormat, pt.Lat, pt.Lng);
         }
 
-        GeoCoderStatusCode GetLatLngFromGeocoderUrl(string url, out List<PointLatLng> pointList)
+        GeoCoderStatusCode GetLatLngFromGeocoderUrl(string url, out List<GeoPoint> pointList)
         {
             var status = GeoCoderStatusCode.UNKNOWN_ERROR;
             pointList = null;
@@ -379,7 +380,7 @@ namespace Asv.Avalonia.GMap
                             var l = doc.SelectNodes("/searchresults/place");
                             if (l != null)
                             {
-                                pointList = new List<PointLatLng>();
+                                pointList = new List<GeoPoint>();
 
                                 foreach (XmlNode n in l)
                                 {
@@ -401,7 +402,7 @@ namespace Asv.Avalonia.GMap
                                         if (nn != null)
                                         {
                                             double lng = double.Parse(nn.Value, CultureInfo.InvariantCulture);
-                                            pointList.Add(new PointLatLng(lat, lng));
+                                            pointList.Add(new GeoPoint(lat, lng));
                                         }
                                     }
                                 }

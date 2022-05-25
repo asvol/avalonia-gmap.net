@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Asv.Tools;
 
 namespace Asv.Avalonia.GMap
 {
@@ -7,7 +8,7 @@ namespace Asv.Avalonia.GMap
     /// </summary>
     public interface RoadsProvider
     {
-        MapRoute GetRoadsRoute(List<PointLatLng> points, bool interpolate);
+        MapRoute GetRoadsRoute(List<GeoPoint> points, bool interpolate);
 
         MapRoute GetRoadsRoute(string points, bool interpolate);
     }

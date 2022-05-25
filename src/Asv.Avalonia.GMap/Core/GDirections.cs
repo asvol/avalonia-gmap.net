@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Asv.Tools;
 
 namespace Asv.Avalonia.GMap
 {
@@ -38,7 +39,7 @@ namespace Asv.Avalonia.GMap
         ///     at the start and end points, start_location may be different than the provided origin of this leg if,
         ///     for example, a road is not near the origin.
         /// </summary>
-        public PointLatLng StartLocation;
+        public GeoPoint StartLocation;
 
         /// <summary>
         ///     contains the latitude/longitude coordinates of the given destination of this leg. Because the Directions
@@ -46,7 +47,7 @@ namespace Asv.Avalonia.GMap
         ///     at the start and end points, end_location may be different than the provided destination of this leg if,
         ///     for example, a road is not near the destination.
         /// </summary>
-        public PointLatLng EndLocation;
+        public GeoPoint EndLocation;
 
         /// <summary>
         ///     contains the human-readable address (typically a street address) reflecting the start_location of this leg.
@@ -71,7 +72,7 @@ namespace Asv.Avalonia.GMap
         /// <summary>
         ///     contains all points of the route
         /// </summary>
-        public List<PointLatLng> Route;
+        public List<GeoPoint> Route;
 
         public override string ToString()
         {
@@ -86,12 +87,12 @@ namespace Asv.Avalonia.GMap
         /// <summary>
         ///     contains the location of the starting point of this step, as a single set of lat and lng fields.
         /// </summary>
-        public PointLatLng StartLocation;
+        public GeoPoint StartLocation;
 
         /// <summary>
         ///     contains the location of the ending point of this step, as a single set of lat and lng fields.
         /// </summary>
-        public PointLatLng EndLocation;
+        public GeoPoint EndLocation;
 
         /// <summary>
         ///     contains the typical time required to perform the step, until the next step. This field may be undefined if the
@@ -113,7 +114,7 @@ namespace Asv.Avalonia.GMap
         /// <summary>
         ///     points of the step
         /// </summary>
-        public List<PointLatLng> Points;
+        public List<GeoPoint> Points;
 
         public override string ToString()
         {

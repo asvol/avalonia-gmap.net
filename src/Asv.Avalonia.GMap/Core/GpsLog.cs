@@ -1,4 +1,5 @@
 ﻿using System;
+using Asv.Tools;
 
 namespace Asv.Avalonia.GMap
 {
@@ -12,7 +13,7 @@ namespace Asv.Avalonia.GMap
         public double? EllipsoidAltitude;
         public short? SatellitesInView;
         public short? SatelliteCount;
-        public PointLatLng Position;
+        public GeoPoint Position;
         public double? PositionDilutionOfPrecision;
         public double? HorizontalDilutionOfPrecision;
         public double? VerticalDilutionOfPrecision;

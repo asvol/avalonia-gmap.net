@@ -1,8 +1,10 @@
-﻿namespace Asv.Avalonia.GMap
+﻿using Asv.Tools;
+
+namespace Asv.Avalonia.GMap
 {
     public interface Interface
     {
-        PointLatLng Position
+        GeoPoint Position
         {
             get;
             set;
@@ -56,8 +58,8 @@
 
         void ReloadMap();
 
-        PointLatLng FromLocalToLatLng(int x, int y);
-        GPoint FromLatLngToLocal(PointLatLng point);
+        GeoPoint FromLocalToLatLng(int x, int y);
+        GPoint FromLatLngToLocal(GeoPoint point);
 
 #if SQLite
         bool ShowExportDialog();

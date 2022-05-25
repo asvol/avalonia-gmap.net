@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Asv.Tools;
 
 namespace Asv.Avalonia.GMap
 {
@@ -7,7 +8,7 @@ namespace Asv.Avalonia.GMap
     /// </summary>
     public interface DirectionsProvider
     {
-        DirectionsStatusCode GetDirections(out GDirections direction, PointLatLng start, PointLatLng end,
+        DirectionsStatusCode GetDirections(out GDirections direction, GeoPoint start, GeoPoint end,
             bool avoidHighways, bool avoidTolls, bool walkingMode, bool sensor, bool metric);
 
         DirectionsStatusCode GetDirections(out GDirections direction, string start, string end, bool avoidHighways,
@@ -40,11 +41,11 @@ namespace Asv.Avalonia.GMap
         /// <param name="sensor"></param>
         /// <param name="metric"></param>
         /// <returns></returns>
-        IEnumerable<GDirections> GetDirections(out DirectionsStatusCode status, PointLatLng start, PointLatLng end,
+        IEnumerable<GDirections> GetDirections(out DirectionsStatusCode status, GeoPoint start, GeoPoint end,
             bool avoidHighways, bool avoidTolls, bool walkingMode, bool sensor, bool metric);
 
-        DirectionsStatusCode GetDirections(out GDirections direction, PointLatLng start,
-            IEnumerable<PointLatLng> wayPoints, PointLatLng end, bool avoidHighways, bool avoidTolls, bool walkingMode,
+        DirectionsStatusCode GetDirections(out GDirections direction, GeoPoint start,
+            IEnumerable<GeoPoint> wayPoints, GeoPoint end, bool avoidHighways, bool avoidTolls, bool walkingMode,
             bool sensor, bool metric);
 
         DirectionsStatusCode GetDirections(out GDirections direction, string start, IEnumerable<string> wayPoints,

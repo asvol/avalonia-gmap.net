@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.Serialization;
+using Asv.Tools;
 
 namespace Asv.Avalonia.GMap
 {
@@ -14,7 +15,7 @@ namespace Asv.Avalonia.GMap
         /// <summary>
         ///     points of route
         /// </summary>
-        public readonly List<PointLatLng> Points = new List<PointLatLng>();
+        public readonly List<GeoPoint> Points = new List<GeoPoint>();
 
         /// <summary>
         ///     route info
@@ -47,7 +48,7 @@ namespace Asv.Avalonia.GMap
         /// <summary>
         ///     route start point
         /// </summary>
-        public PointLatLng? From
+        public GeoPoint? From
         {
             get
             {
@@ -63,7 +64,7 @@ namespace Asv.Avalonia.GMap
         /// <summary>
         ///     route end point
         /// </summary>
-        public PointLatLng? To
+        public GeoPoint? To
         {
             get
             {
@@ -81,7 +82,7 @@ namespace Asv.Avalonia.GMap
             Name = name;
         }
 
-        public MapRoute(IEnumerable<PointLatLng> points, string name)
+        public MapRoute(IEnumerable<GeoPoint> points, string name)
         {
             Points.AddRange(points);
             Name = name;
@@ -127,7 +128,7 @@ namespace Asv.Avalonia.GMap
         /// </summary>
         /// <param name="point">Point to calculate distance.</param>
         /// <returns>Distance in meters.</returns>
-        public double? DistanceTo(PointLatLng point)
+        public double? DistanceTo(GeoPoint point)
         {
             // Minimun of two elements required to compare.
             if (Points.Count >= 2)
@@ -157,7 +158,7 @@ namespace Asv.Avalonia.GMap
         /// <param name="to">End point of lineal route.</param>
         /// <param name="point">Point to calculate distance.</param>
         /// <returns>Distance in meters.</returns>
-        public static double DistanceToLinealRoute(PointLatLng start, PointLatLng to, PointLatLng point)
+        public static double DistanceToLinealRoute(GeoPoint start, GeoPoint to, GeoPoint point)
         {
             // Lineal function formula => y = mxb (y is lat, x is lng).
             // Member m.
@@ -175,9 +176,9 @@ namespace Asv.Avalonia.GMap
 
             // Possibles distances: One from the given point.Lat, and other from the point.Lng.
             double distance1 =
-                GMapProviders.EmptyProvider.Projection.GetDistance(new PointLatLng(point.Lat, formulaLng), point);
+                GMapProviders.EmptyProvider.Projection.GetDistance(new GeoPoint(point.Lat, formulaLng), point);
             double distance2 =
-                GMapProviders.EmptyProvider.Projection.GetDistance(new PointLatLng(formulaLat, point.Lng), point);
+                GMapProviders.EmptyProvider.Projection.GetDistance(new GeoPoint(formulaLat, point.Lng), point);
 
             // Min of the distances.
             double distance = distance1 <= distance2 ? distance1 : distance2;
@@ -199,7 +200,7 @@ namespace Asv.Avalonia.GMap
         #region ISerializable Members
 
         // Temp store for de-serialization.
-        private PointLatLng[] deserializedPoints;
+        private GeoPoint[] deserializedPoints;
 
         /// <summary>
         ///     Populates a <see cref="T:System.Runtime.Serialization.SerializationInfo" /> with the data needed to serialize the
@@ -229,8 +230,8 @@ namespace Asv.Avalonia.GMap
         {
             Name = info.GetString("Name");
             Tag = Extensions.GetValue<object>(info, "Tag", null);
-            deserializedPoints = Extensions.GetValue<PointLatLng[]>(info, "Points");
-            Points = new List<PointLatLng>();
+            deserializedPoints = Extensions.GetValue<GeoPoint[]>(info, "Points");
+            Points = new List<GeoPoint>();
         }
 
         #endregion

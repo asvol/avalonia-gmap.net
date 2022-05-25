@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using Asv.Tools;
 
 namespace Asv.Avalonia.GMap
 {
@@ -19,10 +20,10 @@ namespace Asv.Avalonia.GMap
             _notEmpty = true;
         }
 
-        public RectLatLng(PointLatLng location, SizeLatLng size)
+        public RectLatLng(GeoPoint location, SizeLatLng size)
         {
-            Lng = location.Lng;
-            Lat = location.Lat;
+            Lng = location.Longitude;
+            Lat = location.Latitude;
             WidthLng = size.WidthLng;
             HeightLat = size.HeightLat;
             _notEmpty = true;
@@ -33,45 +34,26 @@ namespace Asv.Avalonia.GMap
             return new RectLatLng(topLat, leftLng, rightLng - leftLng, topLat - bottomLat);
         }
 
-        public PointLatLng LocationTopLeft
+        public GeoPoint LocationTopLeft
         {
             get
             {
-                return new PointLatLng(Lat, Lng);
+                return new GeoPoint(Lat, Lng);
             }
             set
             {
-                Lng = value.Lng;
-                Lat = value.Lat;
+                Lng = value.Longitude;
+                Lat = value.Latitude;
             }
         }
 
-        public PointLatLng LocationRightBottom
-        {
-            get
-            {
-                var ret = new PointLatLng(Lat, Lng);
-                ret.Offset(HeightLat, WidthLng);
-                return ret;
-            }
-        }
+        public GeoPoint LocationRightBottom => new(Lat - HeightLat, Lng + WidthLng);
 
-        public PointLatLng LocationMiddle
-        {
-            get
-            {
-                var ret = new PointLatLng(Lat, Lng);
-                ret.Offset(HeightLat / 2, WidthLng / 2);
-                return ret;
-            }
-        }
+        public GeoPoint LocationMiddle => new(Lat - HeightLat / 2, Lng + WidthLng / 2);
 
         public SizeLatLng Size
         {
-            get
-            {
-                return new SizeLatLng(HeightLat, WidthLng);
-            }
+            get => new(HeightLat, WidthLng);
             set
             {
                 WidthLng = value.WidthLng;
@@ -161,9 +143,9 @@ namespace Asv.Avalonia.GMap
                    lat > Lat - HeightLat;
         }
 
-        public bool Contains(PointLatLng pt)
+        public bool Contains(GeoPoint pt)
         {
-            return Contains(pt.Lat, pt.Lng);
+            return Contains(pt.Latitude, pt.Longitude);
         }
 
         public bool Contains(RectLatLng rect)
@@ -259,9 +241,9 @@ namespace Asv.Avalonia.GMap
         // |
         // unsure ends here
 
-        public void Offset(PointLatLng pos)
+        public void Offset(GeoPoint pos)
         {
-            Offset(pos.Lat, pos.Lng);
+            Offset(pos.Latitude, pos.Longitude);
         }
 
         public void Offset(double lat, double lng)

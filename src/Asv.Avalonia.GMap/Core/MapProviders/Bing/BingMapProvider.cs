@@ -7,6 +7,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Xml;
+using Asv.Tools;
 using NLog;
 
 namespace Asv.Avalonia.GMap
@@ -412,7 +413,7 @@ namespace Asv.Avalonia.GMap
 
         #region RoutingProvider
 
-        public MapRoute GetRoute(PointLatLng start, PointLatLng end, bool avoidHighways, bool walkingMode, int zoom)
+        public MapRoute GetRoute(GeoPoint start, GeoPoint end, bool avoidHighways, bool walkingMode, int zoom)
         {
             string tooltip;
             int numLevels;
@@ -464,15 +465,15 @@ namespace Asv.Avalonia.GMap
                 SessionId);
         }
 
-        string MakeRouteUrl(PointLatLng start, PointLatLng end, string language, bool avoidHighways, bool walkingMode)
+        string MakeRouteUrl(GeoPoint start, GeoPoint end, string language, bool avoidHighways, bool walkingMode)
         {
             string addition = avoidHighways ? "&avoid=highways" : string.Empty;
             string mode = walkingMode ? "Walking" : "Driving";
 
             return string.Format(CultureInfo.InvariantCulture,
-                RouteUrlFormatPointLatLng,
+                RouteUrlFormatGeoPoint,
                 mode,
-                start.Lat,
+                start.Latitude,
                 start.Lng,
                 end.Lat,
                 end.Lng,
@@ -480,10 +481,10 @@ namespace Asv.Avalonia.GMap
                 SessionId);
         }
 
-        List<PointLatLng> GetRoutePoints(string url, int zoom, out string tooltipHtml, out int numLevel,
+        List<GeoPoint> GetRoutePoints(string url, int zoom, out string tooltipHtml, out int numLevel,
             out int zoomFactor)
         {
-            List<PointLatLng> points = null;
+            List<GeoPoint> points = null;
             tooltipHtml = string.Empty;
             numLevel = -1;
             zoomFactor = -1;
@@ -545,12 +546,12 @@ namespace Asv.Avalonia.GMap
                             var xnl = xn.ChildNodes;
                             if (xnl.Count > 0)
                             {
-                                points = new List<PointLatLng>();
+                                points = new List<GeoPoint>();
                                 foreach (XmlNode xno in xnl)
                                 {
                                     XmlNode latitude = xno["Latitude"];
                                     XmlNode longitude = xno["Longitude"];
-                                    points.Add(new PointLatLng(
+                                    points.Add(new GeoPoint(
                                         double.Parse(latitude.InnerText, CultureInfo.InvariantCulture),
                                         double.Parse(longitude.InnerText, CultureInfo.InvariantCulture)));
                                 }
@@ -592,7 +593,7 @@ namespace Asv.Avalonia.GMap
         }
 
         // example : http://dev.virtualearth.net/REST/V1/Routes/Driving?o=xml&wp.0=44.979035,-93.26493&wp.1=44.943828508257866,-93.09332862496376&optmz=distance&rpo=Points&key=[PROVIDEYOUROWNKEY!!]
-        static readonly string RouteUrlFormatPointLatLng =
+        static readonly string RouteUrlFormatGeoPoint =
             "http://dev.virtualearth.net/REST/V1/Routes/{0}?o=xml&wp.0={1},{2}&wp.1={3},{4}{5}&optmz=distance&rpo=Points&key={6}";
 
         static readonly string RouteUrlFormatPointQueries =
@@ -602,29 +603,29 @@ namespace Asv.Avalonia.GMap
 
         #region GeocodingProvider
 
-        public GeoCoderStatusCode GetPoints(string keywords, out List<PointLatLng> pointList)
+        public GeoCoderStatusCode GetPoints(string keywords, out List<GeoPoint> pointList)
         {
             //Escape keywords to better handle special characters.
             return GetLatLngFromGeocoderUrl(MakeGeocoderUrl("q=" + Uri.EscapeDataString(keywords)), out pointList);
         }
 
-        public PointLatLng? GetPoint(string keywords, out GeoCoderStatusCode status)
+        public GeoPoint? GetPoint(string keywords, out GeoCoderStatusCode status)
         {
-            List<PointLatLng> pointList;
+            List<GeoPoint> pointList;
             status = GetPoints(keywords, out pointList);
-            return pointList != null && pointList.Count > 0 ? pointList[0] : (PointLatLng?)null;
+            return pointList != null && pointList.Count > 0 ? pointList[0] : (GeoPoint?)null;
         }
 
-        public GeoCoderStatusCode GetPoints(Placemark placemark, out List<PointLatLng> pointList)
+        public GeoCoderStatusCode GetPoints(Placemark placemark, out List<GeoPoint> pointList)
         {
             return GetLatLngFromGeocoderUrl(MakeGeocoderDetailedUrl(placemark), out pointList);
         }
 
-        public PointLatLng? GetPoint(Placemark placemark, out GeoCoderStatusCode status)
+        public GeoPoint? GetPoint(Placemark placemark, out GeoCoderStatusCode status)
         {
-            List<PointLatLng> pointList;
+            List<GeoPoint> pointList;
             status = GetLatLngFromGeocoderUrl(MakeGeocoderDetailedUrl(placemark), out pointList);
-            return pointList != null && pointList.Count > 0 ? pointList[0] : (PointLatLng?)null;
+            return pointList != null && pointList.Count > 0 ? pointList[0] : (GeoPoint?)null;
         }
 
         string MakeGeocoderDetailedUrl(Placemark placemark)
@@ -663,13 +664,13 @@ namespace Asv.Avalonia.GMap
             return false;
         }
 
-        public GeoCoderStatusCode GetPlacemarks(PointLatLng location, out List<Placemark> placemarkList)
+        public GeoCoderStatusCode GetPlacemarks(GeoPoint location, out List<Placemark> placemarkList)
         {
             // http://msdn.microsoft.com/en-us/library/ff701713.aspx
             throw new NotImplementedException();
         }
 
-        public Placemark? GetPlacemark(PointLatLng location, out GeoCoderStatusCode status)
+        public Placemark? GetPlacemark(GeoPoint location, out GeoCoderStatusCode status)
         {
             // http://msdn.microsoft.com/en-us/library/ff701713.aspx
             throw new NotImplementedException();
@@ -680,7 +681,7 @@ namespace Asv.Avalonia.GMap
             return string.Format(CultureInfo.InvariantCulture, GeocoderUrlFormat, keywords, SessionId);
         }
 
-        GeoCoderStatusCode GetLatLngFromGeocoderUrl(string url, out List<PointLatLng> pointList)
+        GeoCoderStatusCode GetLatLngFromGeocoderUrl(string url, out List<GeoPoint> pointList)
         {
             GeoCoderStatusCode status;
             pointList = null;
@@ -716,14 +717,14 @@ namespace Asv.Avalonia.GMap
                         {
                             case "200":
                             {
-                                pointList = new List<PointLatLng>();
+                                pointList = new List<GeoPoint>();
                                 xn = xn["ResourceSets"]["ResourceSet"]["Resources"];
                                 var xnl = xn.ChildNodes;
                                 foreach (XmlNode xno in xnl)
                                 {
                                     XmlNode latitude = xno["Point"]["Latitude"];
                                     XmlNode longitude = xno["Point"]["Longitude"];
-                                    pointList.Add(new PointLatLng(
+                                    pointList.Add(new GeoPoint(
                                         Double.Parse(latitude.InnerText, CultureInfo.InvariantCulture),
                                         Double.Parse(longitude.InnerText, CultureInfo.InvariantCulture)));
                                 }

@@ -68,9 +68,9 @@
          return ret;
       }
 
-      public override PointLatLng FromPixelToLatLng(long x, long y, int zoom)
+      public override GeoPoint FromPixelToLatLng(long x, long y, int zoom)
       {
-         PointLatLng ret = PointLatLng.Empty;
+         GeoPoint ret = GeoPoint.Empty;
 
          GSize s = GetTileMatrixSizePixel(zoom);
          double mapSizeX = s.Width;

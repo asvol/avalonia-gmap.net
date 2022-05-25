@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using Asv.Tools;
 using Avalonia.Collections;
 using Avalonia.Controls;
 using Avalonia.Media;
@@ -32,8 +33,7 @@ namespace Asv.Avalonia.GMap
         OffsetYEnum OffsetY { get; set; }
         bool IsSelected { get; set; }
         bool IsVisible { get; set; }
-        double Altitude { get; set; }
-        PointLatLng Location { get; set; }
+        GeoPoint Location { get; set; }
         MaterialIconKind Icon { get; set; }
         double RotateCenterX { get; set; }
         double RotateCenterY { get; set; }
@@ -43,7 +43,7 @@ namespace Asv.Avalonia.GMap
         string Description { get; set; }
         double Size { get; set; }
         ReadOnlyObservableCollection<MapAnchorActionViewModel> Actions { get; }
-        ReadOnlyObservableCollection<PointLatLng> Path { get; }
+        ReadOnlyObservableCollection<GeoPoint> Path { get; }
         IBrush Fill { get; set; }
         IBrush Stroke { get; set; }
         double StrokeThickness { get; set; }
@@ -78,9 +78,7 @@ namespace Asv.Avalonia.GMap
         [Reactive]
         public bool IsVisible { get; set; }
         [Reactive]
-        public double Altitude { get; set; }
-        [Reactive]
-        public PointLatLng Location { get; set; }
+        public GeoPoint Location { get; set; }
         [Reactive]
         public MaterialIconKind Icon { get; set; }
         [Reactive]
@@ -100,7 +98,7 @@ namespace Asv.Avalonia.GMap
         
         public virtual ReadOnlyObservableCollection<MapAnchorActionViewModel> Actions { get; }
         
-        public virtual ReadOnlyObservableCollection<PointLatLng> Path { get; }
+        public virtual ReadOnlyObservableCollection<GeoPoint> Path { get; }
 
         [Reactive]
         public IBrush Fill { get; set; }

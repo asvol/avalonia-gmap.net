@@ -1,4 +1,5 @@
 ﻿using System;
+using Asv.Tools;
 
 namespace Asv.Avalonia.GMap
 {
@@ -65,10 +66,8 @@ namespace Asv.Avalonia.GMap
             return ret;
         }
 
-        public override PointLatLng FromPixelToLatLng(long x, long y, int zoom)
+        public override GeoPoint FromPixelToLatLng(long x, long y, int zoom)
         {
-            var ret = PointLatLng.Empty;
-
             var s = GetTileMatrixSizePixel(zoom);
             double mapSizeX = s.Width;
             double mapSizeY = s.Height;
@@ -76,10 +75,7 @@ namespace Asv.Avalonia.GMap
             double xx = Clip(x, 0, mapSizeX - 1) / mapSizeX - 0.5;
             double yy = 0.5 - Clip(y, 0, mapSizeY - 1) / mapSizeY;
 
-            ret.Lat = 90 - 360 * Math.Atan(Math.Exp(-yy * 2 * Math.PI)) / Math.PI;
-            ret.Lng = 360 * xx;
-
-            return ret;
+            return new GeoPoint(90 - 360 * Math.Atan(Math.Exp(-yy * 2 * Math.PI)) / Math.PI, 360 * xx);
         }
 
         public override GSize GetTileMatrixMinXY(int zoom)

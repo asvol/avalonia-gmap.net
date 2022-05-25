@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Asv.Tools;
 
 namespace Asv.Avalonia.GMap
 {
@@ -78,9 +79,9 @@ namespace Asv.Avalonia.GMap
             return new GPoint((long)Math.Floor((lks[0] - OrignX) / res), (long)Math.Floor((OrignY - lks[1]) / res));
         }
 
-        public override PointLatLng FromPixelToLatLng(long x, long y, int zoom)
+        public override GeoPoint FromPixelToLatLng(long x, long y, int zoom)
         {
-            var ret = PointLatLng.Empty;
+            
 
             double res = GetTileMatrixResolution(zoom);
 
@@ -89,10 +90,7 @@ namespace Asv.Avalonia.GMap
             lks = DTM10(lks);
             lks = MTD10(lks);
 
-            ret.Lat = Clip(lks[1], MinLatitude, MaxLatitude);
-            ret.Lng = Clip(lks[0], MinLongitude, MaxLongitude);
-
-            return ret;
+            return new GeoPoint(Clip(lks[1], MinLatitude, MaxLatitude), Clip(lks[0], MinLongitude, MaxLongitude));
         }
 
         double[] DTM10(double[] lonlat)

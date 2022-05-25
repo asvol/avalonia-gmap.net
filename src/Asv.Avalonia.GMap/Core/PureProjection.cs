@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
+using Asv.Tools;
 using NLog;
 using static System.Math;
 
@@ -14,18 +15,18 @@ namespace Asv.Avalonia.GMap
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
-        private readonly List<Dictionary<PointLatLng, GPoint>> _fromLatLngToPixelCache =
-            new List<Dictionary<PointLatLng, GPoint>>(33);
+        private readonly List<Dictionary<GeoPoint, GPoint>> _fromLatLngToPixelCache =
+            new List<Dictionary<GeoPoint, GPoint>>(33);
 
-        private readonly List<Dictionary<GPoint, PointLatLng>> _fromPixelToLatLngCache =
-            new List<Dictionary<GPoint, PointLatLng>>(33);
+        private readonly List<Dictionary<GPoint, GeoPoint>> _fromPixelToLatLngCache =
+            new List<Dictionary<GPoint, GeoPoint>>(33);
 
         public PureProjection()
         {
             for (int i = 0; i < _fromLatLngToPixelCache.Capacity; i++)
             {
-                _fromLatLngToPixelCache.Add(new Dictionary<PointLatLng, GPoint>());
-                _fromPixelToLatLngCache.Add(new Dictionary<GPoint, PointLatLng>());
+                _fromLatLngToPixelCache.Add(new Dictionary<GeoPoint, GPoint>());
+                _fromPixelToLatLngCache.Add(new Dictionary<GPoint, GeoPoint>());
             }
         }
 
@@ -69,9 +70,9 @@ namespace Asv.Avalonia.GMap
         /// <param name="y"></param>
         /// <param name="zoom"></param>
         /// <returns></returns>
-        public abstract PointLatLng FromPixelToLatLng(long x, long y, int zoom);
+        public abstract GeoPoint FromPixelToLatLng(long x, long y, int zoom);
 
-        public GPoint FromLatLngToPixel(PointLatLng p, int zoom)
+        public GPoint FromLatLngToPixel(GeoPoint p, int zoom)
         {
             return FromLatLngToPixel(p, zoom, false);
         }
@@ -83,14 +84,14 @@ namespace Asv.Avalonia.GMap
         /// <param name="zoom"></param>
         /// <param name="useCache"></param>
         /// <returns></returns>
-        public GPoint FromLatLngToPixel(PointLatLng p, int zoom, bool useCache)
+        public GPoint FromLatLngToPixel(GeoPoint p, int zoom, bool useCache)
         {
             if (useCache)
             {
                 var ret = GPoint.Empty;
                 if (!_fromLatLngToPixelCache[zoom].TryGetValue(p, out ret))
                 {
-                    ret = FromLatLngToPixel(p.Lat, p.Lng, zoom);
+                    ret = FromLatLngToPixel(p.Latitude, p.Longitude, zoom);
                     _fromLatLngToPixelCache[zoom].Add(p, ret);
 
                     // for reverse cache
@@ -106,11 +107,11 @@ namespace Asv.Avalonia.GMap
             }
             else
             {
-                return FromLatLngToPixel(p.Lat, p.Lng, zoom);
+                return FromLatLngToPixel(p.Latitude, p.Longitude, zoom);
             }
         }
 
-        public PointLatLng FromPixelToLatLng(GPoint p, int zoom)
+        public GeoPoint FromPixelToLatLng(GPoint p, int zoom)
         {
             return FromPixelToLatLng(p, zoom, false);
         }
@@ -122,11 +123,11 @@ namespace Asv.Avalonia.GMap
         /// <param name="zoom"></param>
         /// <param name="useCache"></param>
         /// <returns></returns>
-        public PointLatLng FromPixelToLatLng(GPoint p, int zoom, bool useCache)
+        public GeoPoint FromPixelToLatLng(GPoint p, int zoom, bool useCache)
         {
             if (useCache)
             {
-                var ret = PointLatLng.Empty;
+                var ret = GeoPoint.Zero;
                 if (!_fromPixelToLatLngCache[zoom].TryGetValue(p, out ret))
                 {
                     ret = FromPixelToLatLng(p.X, p.Y, zoom);
@@ -426,12 +427,12 @@ namespace Asv.Avalonia.GMap
         /// <param name="p1"></param>
         /// <param name="p2"></param>
         /// <returns></returns>
-        public double GetDistance(PointLatLng p1, PointLatLng p2)
+        public double GetDistance(GeoPoint p1, GeoPoint p2)
         {
-            double dLat1InRad = p1.Lat * (PI / 180);
-            double dLong1InRad = p1.Lng * (PI / 180);
-            double dLat2InRad = p2.Lat * (PI / 180);
-            double dLong2InRad = p2.Lng * (PI / 180);
+            double dLat1InRad = p1.Latitude * (PI / 180);
+            double dLong1InRad = p1.Longitude * (PI / 180);
+            double dLat2InRad = p2.Latitude * (PI / 180);
+            double dLong2InRad = p2.Longitude * (PI / 180);
             double dLongitude = dLong2InRad - dLong1InRad;
             double dLatitude = dLat2InRad - dLat1InRad;
             double a = Pow(Sin(dLatitude / 2), 2) + Cos(dLat1InRad) * Cos(dLat2InRad) * Pow(Sin(dLongitude / 2), 2);
@@ -452,11 +453,11 @@ namespace Asv.Avalonia.GMap
         ///     Accepts two coordinates in degrees.
         /// </summary>
         /// <returns>A double value in degrees. From 0 to 360.</returns>
-        public double GetBearing(PointLatLng p1, PointLatLng p2)
+        public double GetBearing(GeoPoint p1, GeoPoint p2)
         {
-            double latitude1 = DegreesToRadians(p1.Lat);
-            double latitude2 = DegreesToRadians(p2.Lat);
-            double longitudeDifference = DegreesToRadians(p2.Lng - p1.Lng);
+            double latitude1 = DegreesToRadians(p1.Latitude);
+            double latitude2 = DegreesToRadians(p2.Latitude);
+            double longitudeDifference = DegreesToRadians(p2.Longitude - p1.Longitude);
 
             double y = Sin(longitudeDifference) * Cos(latitude2);
             double x = Cos(latitude1) * Sin(latitude2) - Sin(latitude1) * Cos(latitude2) * Cos(longitudeDifference);
@@ -511,9 +512,9 @@ namespace Asv.Avalonia.GMap
             lng /= PI / 180;
         }
 
-        public static List<PointLatLng> PolylineDecode(string encodedPath)
+        public static List<GeoPoint> PolylineDecode(string encodedPath)
         {
-            var path = new List<PointLatLng>();
+            var path = new List<GeoPoint>();
 
             // https://github.com/googlemaps/google-maps-services-java/blob/master/src/main/java/com/google/maps/internal/PolylineEncoding.java
             int len = encodedPath.Length;
@@ -551,18 +552,18 @@ namespace Asv.Avalonia.GMap
                     lng += (result & 1) != 0 ? ~(result >> 1) : result >> 1;
                 }
 
-                path.Add(new PointLatLng(lat * 1e-5, lng * 1e-5));
+                path.Add(new GeoPoint(lat * 1e-5, lng * 1e-5));
             }
 
             return path;
         }
 
-        public static void PolylineDecode(List<PointLatLng> path, string encodedPath)
+        public static void PolylineDecode(List<GeoPoint> path, string encodedPath)
         {
             path.AddRange(PolylineDecode(encodedPath));
         }
 
-        public static String PolylineEncode(List<PointLatLng> path)
+        public static String PolylineEncode(List<GeoPoint> path)
         {
             long lastLat = 0;
             long lastLng = 0;
@@ -571,8 +572,8 @@ namespace Asv.Avalonia.GMap
 
             foreach (var point in path)
             {
-                long lat = Convert.ToInt64(Round(point.Lat * 1e5));
-                long lng = Convert.ToInt64(Round(point.Lng * 1e5));
+                long lat = Convert.ToInt64(Round(point.Latitude * 1e5));
+                long lng = Convert.ToInt64(Round(point.Longitude * 1e5));
 
                 long dLat = lat - lastLat;
                 long dLng = lng - lastLng;

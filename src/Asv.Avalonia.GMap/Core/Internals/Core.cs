@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Asv.Tools;
 using NLog;
 #if NET46
 using System.Collections.Concurrent;
@@ -18,7 +19,7 @@ namespace Asv.Avalonia.GMap
     internal sealed class Core : IDisposable
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
-        internal PointLatLng _position;
+        internal GeoPoint _position;
         private GPoint _positionPixel;
 
         internal GPoint RenderOffset;
@@ -34,7 +35,7 @@ namespace Asv.Avalonia.GMap
         public MouseWheelZoomType MouseWheelZoomType = MouseWheelZoomType.MousePositionAndCenter;
         public bool MouseWheelZoomEnabled = true;
 
-        public PointLatLng? LastLocationInBounds;
+        public GeoPoint? LastLocationInBounds;
         public bool VirtualSizeEnabled = false;
 
         private GSize _sizeOfMapArea;
@@ -151,7 +152,7 @@ namespace Asv.Avalonia.GMap
         /// <summary>
         ///     current marker position
         /// </summary>
-        public PointLatLng Position
+        public GeoPoint Position
         {
             get
             {
@@ -260,7 +261,7 @@ namespace Asv.Avalonia.GMap
             int mmaxZoom = GetMaxZoomToFitRect(rect);
             if (mmaxZoom > 0)
             {
-                var center = new PointLatLng(rect.Lat - rect.HeightLat / 2, rect.Lng + rect.WidthLng / 2);
+                var center = new GeoPoint(rect.Lat - rect.HeightLat / 2, rect.Lng + rect.WidthLng / 2);
                 Position = center;
 
                 if (mmaxZoom > MaxZoom)
@@ -491,7 +492,7 @@ namespace Asv.Avalonia.GMap
                     var p = FromLocalToLatLng(0, 0);
                     var p2 = FromLocalToLatLng(Width, Height);
 
-                    return RectLatLng.FromLTRB(p.Lng, p.Lat, p2.Lng, p2.Lat);
+                    return RectLatLng.FromLTRB(p.Longitude, p.Latitude, p2.Longitude, p2.Latitude);
                 }
 
                 return RectLatLng.Empty;
@@ -504,7 +505,7 @@ namespace Asv.Avalonia.GMap
         /// <param name="x"></param>
         /// <param name="y"></param>
         /// <returns></returns>
-        public PointLatLng FromLocalToLatLng(long x, long y)
+        public GeoPoint FromLocalToLatLng(long x, long y)
         {
             var p = new GPoint(x, y);
             p.OffsetNegative(RenderOffset);
@@ -518,7 +519,7 @@ namespace Asv.Avalonia.GMap
         /// </summary>
         /// <param name="latlng"></param>
         /// <returns></returns>
-        public GPoint FromLatLngToLocal(PointLatLng latlng)
+        public GPoint FromLatLngToLocal(GeoPoint latlng)
         {
             var pLocal = Provider.Projection.FromLatLngToPixel(latlng, Zoom);
             pLocal.Offset(RenderOffset);
@@ -1286,7 +1287,7 @@ namespace Asv.Avalonia.GMap
         /// </summary>
         void UpdateGroundResolution()
         {
-            double rez = Provider.Projection.GetGroundResolution(Zoom, Position.Lat);
+            double rez = Provider.Projection.GetGroundResolution(Zoom, Position.Latitude);
             PxRes100M = (int)(100.0 / rez); // 100 meters
             PxRes1000M = (int)(1000.0 / rez); // 1km  
             PxRes10Km = (int)(10000.0 / rez); // 10km

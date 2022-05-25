@@ -6,6 +6,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
+using Asv.Tools;
 using Newtonsoft.Json;
 using NLog;
 
@@ -243,7 +244,7 @@ namespace Asv.Avalonia.GMap
 
         #region RoutingProvider Members
 
-        public virtual MapRoute GetRoute(PointLatLng start, PointLatLng end, bool avoidHighways, bool walkingMode,
+        public virtual MapRoute GetRoute(GeoPoint start, GeoPoint end, bool avoidHighways, bool walkingMode,
             int zoom)
         {
             return GetRoute(MakeRouteUrl(start, end, LanguageStr, avoidHighways, walkingMode));
@@ -256,11 +257,11 @@ namespace Asv.Avalonia.GMap
 
         #region -- internals --
 
-        string MakeRouteUrl(PointLatLng start, PointLatLng end, string language, bool avoidHighways, bool walkingMode)
+        string MakeRouteUrl(GeoPoint start, GeoPoint end, string language, bool avoidHighways, bool walkingMode)
         {
             string opt = walkingMode ? WalkingStr : avoidHighways ? RouteWithoutHighwaysStr : RouteStr;
             return string.Format(CultureInfo.InvariantCulture,
-                RouteUrlFormatPointLatLng,
+                RouteUrlFormatGeoPoint,
                 language,
                 opt,
                 start.Lat,
@@ -335,7 +336,7 @@ namespace Asv.Avalonia.GMap
                                 if (routeResult.routes[0].overview_polyline != null &&
                                     routeResult.routes[0].overview_polyline.points != null)
                                 {
-                                    var points = new List<PointLatLng>();
+                                    var points = new List<GeoPoint>();
                                     PureProjection.PolylineDecode(points,
                                         routeResult.routes[0].overview_polyline.points);
 
@@ -369,7 +370,7 @@ namespace Asv.Avalonia.GMap
             return ret;
         }
 
-        static readonly string RouteUrlFormatPointLatLng =
+        static readonly string RouteUrlFormatGeoPoint =
             "https://maps.{6}/maps/api/directions/json?origin={2},{3}&destination={4},{5}&mode=driving";
 
         static readonly string RouteUrlFormatStr =
@@ -385,16 +386,16 @@ namespace Asv.Avalonia.GMap
 
         #region GeocodingProvider Members
 
-        public GeoCoderStatusCode GetPoints(string keywords, out List<PointLatLng> pointList)
+        public GeoCoderStatusCode GetPoints(string keywords, out List<GeoPoint> pointList)
         {
             return GetLatLngFromGeocoderUrl(MakeGeocoderUrl(keywords, LanguageStr), out pointList);
         }
 
-        public PointLatLng? GetPoint(string keywords, out GeoCoderStatusCode status)
+        public GeoPoint? GetPoint(string keywords, out GeoCoderStatusCode status)
         {
-            List<PointLatLng> pointList;
+            List<GeoPoint> pointList;
             status = GetPoints(keywords, out pointList);
-            return pointList != null && pointList.Count > 0 ? pointList[0] : (PointLatLng?)null;
+            return pointList != null && pointList.Count > 0 ? pointList[0] : (GeoPoint?)null;
         }
 
         /// <summary>
@@ -403,7 +404,7 @@ namespace Asv.Avalonia.GMap
         /// <param name="placemark"></param>
         /// <param name="pointList"></param>
         /// <returns></returns>
-        public GeoCoderStatusCode GetPoints(Placemark placemark, out List<PointLatLng> pointList)
+        public GeoCoderStatusCode GetPoints(Placemark placemark, out List<GeoPoint> pointList)
         {
             throw new NotImplementedException("use GetPoints(string keywords...");
         }
@@ -414,17 +415,17 @@ namespace Asv.Avalonia.GMap
         /// <param name="placemark"></param>
         /// <param name="status"></param>
         /// <returns></returns>
-        public PointLatLng? GetPoint(Placemark placemark, out GeoCoderStatusCode status)
+        public GeoPoint? GetPoint(Placemark placemark, out GeoCoderStatusCode status)
         {
             throw new NotImplementedException("use GetPoint(string keywords...");
         }
 
-        public GeoCoderStatusCode GetPlacemarks(PointLatLng location, out List<Placemark> placemarkList)
+        public GeoCoderStatusCode GetPlacemarks(GeoPoint location, out List<Placemark> placemarkList)
         {
             return GetPlacemarkFromReverseGeocoderUrl(MakeReverseGeocoderUrl(location, LanguageStr), out placemarkList);
         }
 
-        public Placemark? GetPlacemark(PointLatLng location, out GeoCoderStatusCode status)
+        public Placemark? GetPlacemark(GeoPoint location, out GeoCoderStatusCode status)
         {
             List<Placemark> pointList;
             status = GetPlacemarks(location, out pointList);
@@ -444,7 +445,7 @@ namespace Asv.Avalonia.GMap
                 language);
         }
 
-        string MakeReverseGeocoderUrl(PointLatLng pt, string language)
+        string MakeReverseGeocoderUrl(GeoPoint pt, string language)
         {
             return string.Format(CultureInfo.InvariantCulture,
                 ReverseGeocoderUrlFormat,
@@ -454,7 +455,7 @@ namespace Asv.Avalonia.GMap
                 language);
         }
 
-        GeoCoderStatusCode GetLatLngFromGeocoderUrl(string url, out List<PointLatLng> pointList)
+        GeoCoderStatusCode GetLatLngFromGeocoderUrl(string url, out List<GeoPoint> pointList)
         {
             var status = GeoCoderStatusCode.UNKNOWN_ERROR;
 
@@ -503,12 +504,12 @@ namespace Asv.Avalonia.GMap
                             if (cache && GMaps.Instance.UseGeocoderCache)
                                 Cache.Instance.SaveContent(url, CacheType.GeocoderCache, geo);
 
-                            pointList = new List<PointLatLng>();
+                            pointList = new List<GeoPoint>();
 
                             if (geoResult.results != null && geoResult.results.Count > 0)
                             {
                                 for (int i = 0; i < geoResult.results.Count; i++)
-                                    pointList.Add(new PointLatLng(geoResult.results[i].geometry.location.lat,
+                                    pointList.Add(new GeoPoint(geoResult.results[i].geometry.location.lat,
                                         geoResult.results[i].geometry.location.lng));
                             }
                         }
@@ -720,7 +721,7 @@ namespace Asv.Avalonia.GMap
 
         #region DirectionsProvider Members
 
-        public DirectionsStatusCode GetDirections(out GDirections direction, PointLatLng start, PointLatLng end,
+        public DirectionsStatusCode GetDirections(out GDirections direction, GeoPoint start, GeoPoint end,
             bool avoidHighways, bool avoidTolls, bool walkingMode, bool sensor, bool metric)
         {
             return GetDirectionsUrl(MakeDirectionsUrl(start,
@@ -780,16 +781,16 @@ namespace Asv.Avalonia.GMap
         /// <param name="sensor"></param>
         /// <param name="metric"></param>
         /// <returns></returns>
-        public IEnumerable<GDirections> GetDirections(out DirectionsStatusCode status, PointLatLng start,
-            PointLatLng end, bool avoidHighways, bool avoidTolls, bool walkingMode, bool sensor, bool metric)
+        public IEnumerable<GDirections> GetDirections(out DirectionsStatusCode status, GeoPoint start,
+            GeoPoint end, bool avoidHighways, bool avoidTolls, bool walkingMode, bool sensor, bool metric)
         {
             // TODO: add alternative directions
 
             throw new NotImplementedException();
         }
 
-        public DirectionsStatusCode GetDirections(out GDirections direction, PointLatLng start,
-            IEnumerable<PointLatLng> wayPoints, PointLatLng end, bool avoidHighways, bool avoidTolls, bool walkingMode,
+        public DirectionsStatusCode GetDirections(out GDirections direction, GeoPoint start,
+            IEnumerable<GeoPoint> wayPoints, GeoPoint end, bool avoidHighways, bool avoidTolls, bool walkingMode,
             bool sensor, bool metric)
         {
             return GetDirectionsUrl(MakeDirectionsUrl(start,
@@ -824,7 +825,7 @@ namespace Asv.Avalonia.GMap
 
         // The Coogle Directions API: http://tinyurl.com/6vv4cac
 
-        string MakeDirectionsUrl(PointLatLng start, PointLatLng end, string language, bool avoidHighways,
+        string MakeDirectionsUrl(GeoPoint start, GeoPoint end, string language, bool avoidHighways,
             bool avoidTolls, bool walkingMode, bool sensor, bool metric)
         {
             string av = (avoidHighways ? "&avoid=highways" : string.Empty) +
@@ -865,7 +866,7 @@ namespace Asv.Avalonia.GMap
                 ServerAPIs);
         }
 
-        string MakeDirectionsUrl(PointLatLng start, IEnumerable<PointLatLng> wayPoints, PointLatLng end,
+        string MakeDirectionsUrl(GeoPoint start, IEnumerable<GeoPoint> wayPoints, GeoPoint end,
             string language, bool avoidHighways, bool avoidTolls, bool walkingMode, bool sensor, bool metric)
         {
             string av = (avoidHighways ? "&avoid=highways" : string.Empty) +
@@ -984,7 +985,7 @@ namespace Asv.Avalonia.GMap
                                 if (directionResult.routes[0].overview_polyline != null &&
                                     directionResult.routes[0].overview_polyline.points != null)
                                 {
-                                    direction.Route = new List<PointLatLng>();
+                                    direction.Route = new List<GeoPoint>();
                                     PureProjection.PolylineDecode(direction.Route,
                                         directionResult.routes[0].overview_polyline.points);
                                 }
@@ -1009,16 +1010,16 @@ namespace Asv.Avalonia.GMap
 
                                     if (directionResult.routes[0].legs[0].start_location != null)
                                     {
-                                        direction.StartLocation.Lat =
-                                            directionResult.routes[0].legs[0].start_location.lat;
-                                        direction.StartLocation.Lng =
-                                            directionResult.routes[0].legs[0].start_location.lng;
+                                        direction.StartLocation =
+                                            new GeoPoint(directionResult.routes[0].legs[0].start_location.lat,
+                                                directionResult.routes[0].legs[0].start_location.lng);
                                     }
 
                                     if (directionResult.routes[0].legs[0].end_location != null)
                                     {
-                                        direction.EndLocation.Lat = directionResult.routes[0].legs[0].end_location.lat;
-                                        direction.EndLocation.Lng = directionResult.routes[0].legs[0].end_location.lng;
+                                        direction.EndLocation =
+                                            new GeoPoint(directionResult.routes[0].legs[0].end_location.lat,
+                                                directionResult.routes[0].legs[0].end_location.lng);
                                     }
 
                                     if (directionResult.routes[0].legs[0].start_address != null)
@@ -1055,24 +1056,24 @@ namespace Asv.Avalonia.GMap
 
                                         if (directionResult.routes[0].legs[0].steps[i].start_location != null)
                                         {
-                                            step.StartLocation.Lat = directionResult.routes[0].legs[0].steps[i]
-                                                .start_location.lat;
-                                            step.StartLocation.Lng = directionResult.routes[0].legs[0].steps[i]
-                                                .start_location.lng;
+                                            step.StartLocation = new GeoPoint(directionResult.routes[0].legs[0].steps[i]
+                                                .start_location.lat, directionResult.routes[0].legs[0].steps[i]
+                                                .start_location.lng);
+
                                         }
 
                                         if (directionResult.routes[0].legs[0].steps[i].end_location != null)
                                         {
-                                            step.EndLocation.Lat = directionResult.routes[0].legs[0].steps[i]
-                                                .end_location.lat;
-                                            step.EndLocation.Lng = directionResult.routes[0].legs[0].steps[i]
-                                                .end_location.lng;
+                                            step.EndLocation =
+                                                new GeoPoint(
+                                                    directionResult.routes[0].legs[0].steps[i].end_location.lat,
+                                                    directionResult.routes[0].legs[0].steps[i].end_location.lng);
                                         }
 
                                         if (directionResult.routes[0].legs[0].steps[i].polyline != null &&
                                             directionResult.routes[0].legs[0].steps[i].polyline.points != null)
                                         {
-                                            step.Points = new List<PointLatLng>();
+                                            step.Points = new List<GeoPoint>();
                                             PureProjection.PolylineDecode(step.Points,
                                                 directionResult.routes[0].legs[0].steps[i].polyline.points);
                                         }
@@ -1113,7 +1114,7 @@ namespace Asv.Avalonia.GMap
 
         #region RoadsProvider Members
 
-        public virtual MapRoute GetRoadsRoute(List<PointLatLng> points, bool interpolate)
+        public virtual MapRoute GetRoadsRoute(List<GeoPoint> points, bool interpolate)
         {
             return GetRoadsRoute(MakeRoadsUrl(points, interpolate.ToString()));
         }
@@ -1125,7 +1126,7 @@ namespace Asv.Avalonia.GMap
 
         #region -- internals --
 
-        string MakeRoadsUrl(List<PointLatLng> points, string interpolate)
+        string MakeRoadsUrl(List<GeoPoint> points, string interpolate)
         {
             string pointstr = "";
 
@@ -1189,7 +1190,7 @@ namespace Asv.Avalonia.GMap
 
                             foreach (var item in roadsResult.snappedPoints)
                             {
-                                ret.Points.Add(new PointLatLng(item.location.latitude, item.location.longitude));
+                                ret.Points.Add(new GeoPoint(item.location.latitude, item.location.longitude));
                             }
 
                             ret.Status = RouteStatusCode.OK;

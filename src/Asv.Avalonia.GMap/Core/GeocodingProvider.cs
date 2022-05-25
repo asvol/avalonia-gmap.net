@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Asv.Tools;
 
 namespace Asv.Avalonia.GMap
 {
@@ -7,18 +8,18 @@ namespace Asv.Avalonia.GMap
     /// </summary>
     public interface GeocodingProvider
     {
-        GeoCoderStatusCode GetPoints(string keywords, out List<PointLatLng> pointList);
+        GeoCoderStatusCode GetPoints(string keywords, out List<GeoPoint> pointList);
 
-        PointLatLng? GetPoint(string keywords, out GeoCoderStatusCode status);
-
-
-        GeoCoderStatusCode GetPoints(Placemark placemark, out List<PointLatLng> pointList);
-
-        PointLatLng? GetPoint(Placemark placemark, out GeoCoderStatusCode status);
+        GeoPoint? GetPoint(string keywords, out GeoCoderStatusCode status);
 
 
-        GeoCoderStatusCode GetPlacemarks(PointLatLng location, out List<Placemark> placemarkList);
+        GeoCoderStatusCode GetPoints(Placemark placemark, out List<GeoPoint> pointList);
 
-        Placemark? GetPlacemark(PointLatLng location, out GeoCoderStatusCode status);
+        GeoPoint? GetPoint(Placemark placemark, out GeoCoderStatusCode status);
+
+
+        GeoCoderStatusCode GetPlacemarks(GeoPoint location, out List<Placemark> placemarkList);
+
+        Placemark? GetPlacemark(GeoPoint location, out GeoCoderStatusCode status);
     }
 }

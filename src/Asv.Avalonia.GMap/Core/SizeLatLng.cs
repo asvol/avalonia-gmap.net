@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using Asv.Tools;
 
 namespace Asv.Avalonia.GMap
 {
@@ -15,10 +16,10 @@ namespace Asv.Avalonia.GMap
             HeightLat = size.HeightLat;
         }
 
-        public SizeLatLng(PointLatLng pt)
+        public SizeLatLng(GeoPoint pt)
         {
-            HeightLat = pt.Lat;
-            WidthLng = pt.Lng;
+            HeightLat = pt.Latitude;
+            WidthLng = pt.Longitude;
         }
 
         public SizeLatLng(double heightLat, double widthLng)
@@ -47,18 +48,12 @@ namespace Asv.Avalonia.GMap
             return !(sz1 == sz2);
         }
 
-        public static explicit operator PointLatLng(SizeLatLng size)
+        public static explicit operator GeoPoint(SizeLatLng size)
         {
-            return new PointLatLng(size.HeightLat, size.WidthLng);
+            return new GeoPoint(size.HeightLat, size.WidthLng);
         }
 
-        public bool IsEmpty
-        {
-            get
-            {
-                return WidthLng == 0d && HeightLat == 0d;
-            }
-        }
+        public bool IsEmpty => WidthLng == 0d && HeightLat == 0d;
 
         public double WidthLng
         {
@@ -104,9 +99,9 @@ namespace Asv.Avalonia.GMap
             return WidthLng.GetHashCode() ^ HeightLat.GetHashCode();
         }
 
-        public PointLatLng ToPointLatLng()
+        public GeoPoint ToGeoPoint()
         {
-            return (PointLatLng)this;
+            return (GeoPoint)this;
         }
 
         public override string ToString()

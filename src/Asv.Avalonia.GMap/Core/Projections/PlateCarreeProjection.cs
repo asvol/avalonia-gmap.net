@@ -1,4 +1,5 @@
 ﻿using System;
+using Asv.Tools;
 
 namespace Asv.Avalonia.GMap
 {
@@ -64,20 +65,15 @@ namespace Asv.Avalonia.GMap
             return ret;
         }
 
-        public override PointLatLng FromPixelToLatLng(long x, long y, int zoom)
+        public override GeoPoint FromPixelToLatLng(long x, long y, int zoom)
         {
-            PointLatLng ret = PointLatLng.Empty;
-
             GSize s = GetTileMatrixSizePixel(zoom);
             double mapSizeX = s.Width;
             double mapSizeY = s.Height;
 
             double scale = 360.0 / mapSizeX;
 
-            ret.Lat = 90 - y * scale;
-            ret.Lng = x * scale - 180;
-
-            return ret;
+            return new GeoPoint(90 - y * scale, x * scale - 180);
         }
 
         public override GSize GetTileMatrixMaxXY(int zoom)

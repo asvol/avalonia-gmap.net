@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Xml;
+using Asv.Tools;
 using NLog;
 
 namespace Asv.Avalonia.GMap
@@ -74,9 +75,9 @@ namespace Asv.Avalonia.GMap
 
         #region RoutingProvider Members
 
-        public MapRoute GetRoute(PointLatLng start, PointLatLng end, bool avoidHighways, bool walkingMode, int zoom)
+        public MapRoute GetRoute(GeoPoint start, GeoPoint end, bool avoidHighways, bool walkingMode, int zoom)
         {
-            List<PointLatLng> points = GetRoutePoints(MakeRoutingUrl(start,
+            List<GeoPoint> points = GetRoutePoints(MakeRoutingUrl(start,
                 end,
                 walkingMode ? TravelTypeFoot : TravelTypeMotorCar,
                 LanguageStr,
@@ -101,7 +102,7 @@ namespace Asv.Avalonia.GMap
 
         #region -- internals --
 
-        string MakeRoutingUrl(PointLatLng start, PointLatLng end, string travelType, string language, string units)
+        string MakeRoutingUrl(GeoPoint start, GeoPoint end, string travelType, string language, string units)
         {
             // http://developers.cloudmade.com/projects/routing-http-api/examples/
             // http://routes.cloudmade.com/YOUR-API-KEY-GOES-HERE/api/0.3/start_point,[[transit_point1,...,transit_pointN]],end_point/route_type[/route_type_modifier].output_format[?lang=(en|de)][&units=(km|miles)]
@@ -118,9 +119,9 @@ namespace Asv.Avalonia.GMap
                 units);
         }
 
-        List<PointLatLng> GetRoutePoints(string url)
+        List<GeoPoint> GetRoutePoints(string url)
         {
-            List<PointLatLng> points = null;
+            List<GeoPoint> points = null;
             try
             {
                 string route = GMaps.Instance.UseRouteCache
@@ -211,12 +212,12 @@ namespace Asv.Avalonia.GMap
                     XmlNodeList wpts = xmldoc.SelectNodes("/sm:gpx/sm:wpt", xmlnsManager);
                     if (wpts != null && wpts.Count > 0)
                     {
-                        points = new List<PointLatLng>();
+                        points = new List<GeoPoint>();
                         foreach (XmlNode w in wpts)
                         {
                             double lat = double.Parse(w.Attributes["lat"].InnerText, CultureInfo.InvariantCulture);
                             double lng = double.Parse(w.Attributes["lon"].InnerText, CultureInfo.InvariantCulture);
-                            points.Add(new PointLatLng(lat, lng));
+                            points.Add(new GeoPoint(lat, lng));
                         }
                     }
                 }
@@ -243,7 +244,7 @@ namespace Asv.Avalonia.GMap
 
         #region DirectionsProvider Members
 
-        public DirectionsStatusCode GetDirections(out GDirections direction, PointLatLng start, PointLatLng end,
+        public DirectionsStatusCode GetDirections(out GDirections direction, GeoPoint start, GeoPoint end,
             bool avoidHighways, bool avoidTolls, bool walkingMode, bool sensor, bool metric)
         {
             return GetDirectionsUrl(MakeRoutingUrl(start,
@@ -302,8 +303,8 @@ namespace Asv.Avalonia.GMap
         /// <param name="sensor"></param>
         /// <param name="metric"></param>
         /// <returns></returns>
-        public IEnumerable<GDirections> GetDirections(out DirectionsStatusCode status, PointLatLng start,
-            PointLatLng end, bool avoidHighways, bool avoidTolls, bool walkingMode, bool sensor, bool metric)
+        public IEnumerable<GDirections> GetDirections(out DirectionsStatusCode status, GeoPoint start,
+            GeoPoint end, bool avoidHighways, bool avoidTolls, bool walkingMode, bool sensor, bool metric)
         {
             throw new NotImplementedException();
         }
@@ -321,8 +322,8 @@ namespace Asv.Avalonia.GMap
         /// <param name="sensor"></param>
         /// <param name="metric"></param>
         /// <returns></returns>
-        public DirectionsStatusCode GetDirections(out GDirections direction, PointLatLng start,
-            IEnumerable<PointLatLng> wayPoints, PointLatLng end, bool avoidHighways, bool avoidTolls, bool walkingMode,
+        public DirectionsStatusCode GetDirections(out GDirections direction, GeoPoint start,
+            IEnumerable<GeoPoint> wayPoints, GeoPoint end, bool avoidHighways, bool avoidTolls, bool walkingMode,
             bool sensor, bool metric)
         {
             throw new NotImplementedException();
@@ -448,13 +449,13 @@ namespace Asv.Avalonia.GMap
                         ret = DirectionsStatusCode.OK;
 
                         direction = new GDirections();
-                        direction.Route = new List<PointLatLng>();
+                        direction.Route = new List<GeoPoint>();
 
                         foreach (XmlNode w in wpts)
                         {
                             double lat = double.Parse(w.Attributes["lat"].InnerText, CultureInfo.InvariantCulture);
                             double lng = double.Parse(w.Attributes["lon"].InnerText, CultureInfo.InvariantCulture);
-                            direction.Route.Add(new PointLatLng(lat, lng));
+                            direction.Route.Add(new GeoPoint(lat, lng));
                         }
 
                         if (direction.Route.Count > 0)
@@ -506,7 +507,7 @@ namespace Asv.Avalonia.GMap
                                 double lat = double.Parse(w.Attributes["lat"].InnerText, CultureInfo.InvariantCulture);
                                 double lng = double.Parse(w.Attributes["lon"].InnerText, CultureInfo.InvariantCulture);
 
-                                step.StartLocation = new PointLatLng(lat, lng);
+                                step.StartLocation = new GeoPoint(lat, lng);
 
                                 XmlNode nn = w.SelectSingleNode("sm:desc", xmlnsManager);
                                 if (nn != null)

@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using Asv.Tools;
 using Avalonia;
 using Avalonia.Collections;
 using Avalonia.Controls;
@@ -87,7 +88,7 @@ namespace Asv.Avalonia.GMap
             MinZoom = _core.MinZoom;
             MaxZoom = _core.MaxZoom;
             MapProvider = GMapProviders.BingHybridMap;
-            Position = new PointLatLng(55.1644, 61.4368);
+            Position = new GeoPoint(55.1644, 61.4368);
             if (Design.IsDesignMode)
             {
                 
@@ -135,15 +136,15 @@ namespace Asv.Avalonia.GMap
         public static double GetPathOpacity(IAvaloniaObject element) => element.GetValue(PathOpacityProperty);
 
 
-        public static readonly AttachedProperty<IList<PointLatLng>> PathProperty =
-            AvaloniaProperty.RegisterAttached<MapView, AvaloniaObject, IList<PointLatLng>>("Path");
-        public static void SetPath(IAvaloniaObject element, IList<PointLatLng> value) => element.SetValue(PathProperty, value);
-        public static IList<PointLatLng> GetPath(IAvaloniaObject element) => element.GetValue(PathProperty);
+        public static readonly AttachedProperty<IList<GeoPoint>> PathProperty =
+            AvaloniaProperty.RegisterAttached<MapView, AvaloniaObject, IList<GeoPoint>>("Path");
+        public static void SetPath(IAvaloniaObject element, IList<GeoPoint> value) => element.SetValue(PathProperty, value);
+        public static IList<GeoPoint> GetPath(IAvaloniaObject element) => element.GetValue(PathProperty);
 
-        public static readonly AttachedProperty<PointLatLng> LocationProperty =
-            AvaloniaProperty.RegisterAttached<MapView, AvaloniaObject, PointLatLng>("Location", PointLatLng.Empty);
-        public static void SetLocation(IAvaloniaObject element, PointLatLng value) => element.SetValue(LocationProperty, value);
-        public static PointLatLng GetLocation(IAvaloniaObject element) => element.GetValue(LocationProperty);
+        public static readonly AttachedProperty<GeoPoint> LocationProperty =
+            AvaloniaProperty.RegisterAttached<MapView, AvaloniaObject, GeoPoint>("Location", GeoPoint.Zero);
+        public static void SetLocation(IAvaloniaObject element, GeoPoint value) => element.SetValue(LocationProperty, value);
+        public static GeoPoint GetLocation(IAvaloniaObject element) => element.GetValue(LocationProperty);
 
         public static readonly AttachedProperty<double> OffsetXProperty =
             AvaloniaProperty.RegisterAttached<MapView, AvaloniaObject, double>("OffsetX", 0);
@@ -477,7 +478,7 @@ namespace Asv.Avalonia.GMap
 
         #region Coordinate convertion
 
-        public PointLatLng FromLocalToLatLng(int x, int y)
+        public GeoPoint FromLocalToLatLng(int x, int y)
         {
             if (MapScaleTransform != null)
             {
@@ -488,7 +489,7 @@ namespace Asv.Avalonia.GMap
             return _core.FromLocalToLatLng(x, y);
         }
 
-        public GPoint FromLatLngToLocal(PointLatLng point)
+        public GPoint FromLatLngToLocal(GeoPoint point)
         {
             var ret = _core.FromLatLngToLocal(point);
 
@@ -505,10 +506,10 @@ namespace Asv.Avalonia.GMap
 
         #region Position
 
-        public static readonly DirectProperty<MapView, PointLatLng> PositionProperty =
-            AvaloniaProperty.RegisterDirect<MapView, PointLatLng>(nameof(Position), o => o.Position, (o, v) => o.Position = v);
-        private PointLatLng _position = new PointLatLng(55.1644, 61.4368);
-        public PointLatLng Position
+        public static readonly DirectProperty<MapView, GeoPoint> PositionProperty =
+            AvaloniaProperty.RegisterDirect<MapView, GeoPoint>(nameof(Position), o => o.Position, (o, v) => o.Position = v);
+        private GeoPoint _position = new GeoPoint(55.1644, 61.4368);
+        public GeoPoint Position
         {
             get => _position;
             set
@@ -592,7 +593,7 @@ namespace Asv.Avalonia.GMap
 
             if (viewarea != RectLatLng.Empty)
             {
-                Position = new PointLatLng(viewarea.Lat - viewarea.HeightLat / 2,
+                Position = new GeoPoint(viewarea.Lat - viewarea.HeightLat / 2,
                     viewarea.Lng + viewarea.WidthLng / 2);
             }
             else
@@ -961,10 +962,10 @@ namespace Asv.Avalonia.GMap
             set => SetAndRaise(DialogTextProperty, ref _dialogText, value);
         }
 
-        public static readonly DirectProperty<MapView, PointLatLng> DialogTargetProperty =
-            AvaloniaProperty.RegisterDirect<MapView, PointLatLng>(nameof(IsInDialogMode), o => o.DialogTarget, (o, v) => o.DialogTarget = v);
-        private PointLatLng _dialogTarget;
-        public PointLatLng DialogTarget
+        public static readonly DirectProperty<MapView, GeoPoint> DialogTargetProperty =
+            AvaloniaProperty.RegisterDirect<MapView, GeoPoint>(nameof(IsInDialogMode), o => o.DialogTarget, (o, v) => o.DialogTarget = v);
+        private GeoPoint _dialogTarget;
+        public GeoPoint DialogTarget
         {
             get => _dialogTarget;
             set => SetAndRaise(DialogTargetProperty, ref _dialogTarget, value);

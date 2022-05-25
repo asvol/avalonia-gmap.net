@@ -1,8 +1,9 @@
 ﻿using System;
+using Asv.Tools;
 
 namespace Asv.Avalonia.GMap
 {
-    public delegate void PositionChanged(PointLatLng point);
+    public delegate void PositionChanged(GeoPoint point);
 
     public delegate void TileLoadComplete(long elapsedMilliseconds);
 

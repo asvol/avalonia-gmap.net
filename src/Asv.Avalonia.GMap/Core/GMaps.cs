@@ -611,8 +611,8 @@ namespace Asv.Avalonia.GMap
                         {
                             #region -- set values --
 
-                            t.lat = new decimal(point.Position.Lat);
-                            t.lon = new decimal(point.Position.Lng);
+                            t.lat = new decimal(point.Position.Latitude);
+                            t.lon = new decimal(point.Position.Longitude);
 
                             t.time = point.TimeUTC;
                             t.timeSpecified = true;

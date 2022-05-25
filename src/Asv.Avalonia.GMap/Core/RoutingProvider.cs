@@ -1,4 +1,6 @@
-﻿namespace Asv.Avalonia.GMap
+﻿using Asv.Tools;
+
+namespace Asv.Avalonia.GMap
 {
     /// <summary>
     ///     routing interface
@@ -8,7 +10,7 @@
         /// <summary>
         ///     get route between two points
         /// </summary>
-        MapRoute GetRoute(PointLatLng start, PointLatLng end, bool avoidHighways, bool walkingMode, int zoom);
+        MapRoute GetRoute(GeoPoint start, GeoPoint end, bool avoidHighways, bool walkingMode, int zoom);
 
         /// <summary>
         ///     get route between two points
