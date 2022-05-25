@@ -131,38 +131,36 @@ namespace Asv.Avalonia.GMap
         private Cache()
         {
             ImageCache = new FolderDbCache("map");
+            string newCache = CacheLocator.Location;
+
+            string oldCache = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) +
+                              Path.DirectorySeparatorChar + "GMap.NET" + Path.DirectorySeparatorChar;
+
+            // move database to non-roaming user directory
+            if (Directory.Exists(oldCache))
             {
-                string newCache = CacheLocator.Location;
-
-                string oldCache = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) +
-                                  Path.DirectorySeparatorChar + "GMap.NET" + Path.DirectorySeparatorChar;
-
-                // move database to non-roaming user directory
-                if (Directory.Exists(oldCache))
+                try
                 {
-                    try
+                    if (Directory.Exists(newCache))
                     {
-                        if (Directory.Exists(newCache))
-                        {
-                            Directory.Delete(oldCache, true);
-                        }
-                        else
-                        {
-                            Directory.Move(oldCache, newCache);
-                        }
+                        Directory.Delete(oldCache, true);
+                    }
+                    else
+                    {
+                        Directory.Move(oldCache, newCache);
+                    }
 
-                        CacheLocation = newCache;
-                    }
-                    catch (Exception ex)
-                    {
-                        CacheLocation = oldCache;
-                        Trace.WriteLine("SQLitePureImageCache, moving data: " + ex.ToString());
-                    }
-                }
-                else
-                {
                     CacheLocation = newCache;
                 }
+                catch (Exception ex)
+                {
+                    CacheLocation = oldCache;
+                    Trace.WriteLine("SQLitePureImageCache, moving data: " + ex.ToString());
+                }
+            }
+            else
+            {
+                CacheLocation = newCache;
             }
         }
 

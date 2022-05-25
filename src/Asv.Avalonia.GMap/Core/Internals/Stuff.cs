@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
@@ -36,30 +37,18 @@ namespace Asv.Avalonia.GMap
             for (int i = 0; i < n; ++i)
             {
                 int r = i + Random.Next(n - i);
-                var t = deck[r];
-                deck[r] = deck[i];
-                deck[i] = t;
+                (deck[r], deck[i]) = (deck[i], deck[r]);
             }
         }
 
         public static MemoryStream CopyStream(Stream inputStream, bool seekOriginBegin)
         {
-            const int readSize = 32 * 1024;
-            var buffer = new byte[readSize];
             var ms = new MemoryStream();
-            {
-                int count;
-                while ((count = inputStream.Read(buffer, 0, readSize)) > 0)
-                {
-                    ms.Write(buffer, 0, count);
-                }
-            }
-
+            inputStream.CopyTo(ms);
             if (seekOriginBegin)
             {
                 inputStream.Seek(0, SeekOrigin.Begin);
             }
-
             ms.Seek(0, SeekOrigin.Begin);
             return ms;
         }
