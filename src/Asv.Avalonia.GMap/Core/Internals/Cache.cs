@@ -130,7 +130,7 @@ namespace Asv.Avalonia.GMap
 
         private Cache()
         {
-            ImageCache = new LiteDbCache("temp.db");
+            ImageCache = new FolderDbCache("map");
             {
                 string newCache = CacheLocator.Location;
 

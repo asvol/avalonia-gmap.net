@@ -77,15 +77,14 @@ namespace Asv.Avalonia.GMap
                 try
                 {
                     var m = new Bitmap(stream);
-
-                    var ret = new MapImage { Img = m };
-
+                   
+                    var ret = new MapImage { Img = m};
                     return ret;
                 }
                 catch
                 {
                     stream.Position = 0;
-
+                    
                     int type = stream.Length > 0 ? stream.ReadByte() : 0;
                     Logger.Trace("WindowsPresentationImageProxy: unknown image format: " + type);
                 }
