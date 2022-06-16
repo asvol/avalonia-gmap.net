@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using Asv.Tools;
 using Avalonia;
 using Avalonia.Collections;
 using Avalonia.Controls;
@@ -32,7 +33,6 @@ namespace Asv.Avalonia.GMap
             FocusableProperty.OverrideDefaultValue<MapViewItem>(true);
 
         }
-        private bool _isDrugged;
 
         public MapViewItem()
         {
@@ -42,8 +42,8 @@ namespace Asv.Avalonia.GMap
                 DisposableMixins.DisposeWith(this.WhenAnyValue(_ => _.Bounds).Subscribe(_ => UpdateLocalPosition()), disp);
 
                 DisposableMixins.DisposeWith(this.Events().PointerPressed.Where(_ => IsEditable).Subscribe(DragPointerPressed),disp);
-                DisposableMixins.DisposeWith(this.Events().PointerReleased.Where(_ => IsEditable).Subscribe(DragPointerReleased), disp);
-                DisposableMixins.DisposeWith(this.Events().PointerMoved.Where(_ => IsEditable && _isDrugged).Subscribe(DragPointerMoved), disp);
+                // DisposableMixins.DisposeWith(this.Events().PointerReleased.Where(_ => IsEditable).Subscribe(DragPointerReleased), disp);
+                DisposableMixins.DisposeWith(this.Events().PointerMoved.Where(_ => IsEditable).Subscribe(DragPointerMoved), disp);
                 
             });
 
@@ -57,8 +57,7 @@ namespace Asv.Avalonia.GMap
 
         private void DragPointerMoved(PointerEventArgs args)
         {
-
-            if (_isDrugged)
+            if ((args.KeyModifiers & KeyModifiers.Control) != 0 && IsSelected)
             {
                 if (_map == null) return;
 
@@ -68,23 +67,25 @@ namespace Asv.Avalonia.GMap
                 var point = args.GetCurrentPoint(_map.MapCanvas);
                 var offsetX = 0;
                 var offsetY = 0;
-               
+                var old = MapView.GetLocation(child);
                 var location = _map.FromLocalToLatLng((int)(point.Position.X  + _map.MapTranslateTransform.X + offsetX), (int)(point.Position.Y + _map.MapTranslateTransform.Y + offsetY));
-                MapView.SetLocation(child, location); 
+                
+                MapView.SetLocation(child, location.SetAltitude(old.Altitude)); 
             }
         }
         private void DragPointerPressed(PointerPressedEventArgs args)
         {
+            
             if ((args.KeyModifiers & KeyModifiers.Control) != 0)
             {
-                _isDrugged = true;
+                IsSelected = true;
                 args.Handled = true;
             }
         }
-        private void DragPointerReleased(PointerReleasedEventArgs args)
-        {
-            _isDrugged = false;
-        }
+        // private void DragPointerReleased(PointerReleasedEventArgs args)
+        // {
+        //     
+        // }
 
         
 
@@ -249,11 +250,14 @@ namespace Asv.Avalonia.GMap
         {
             // Create a StreamGeometry to use to specify _myPath.
             var geometry = new StreamGeometry();
-
+            
             
             geometry.BeginBatchUpdate();
             using (var ctx = geometry.Open())
             {
+                
+                    
+
                 ctx.BeginFigure(localPath[0], false);
                 // Draw a line to the next specified point.
                 foreach (var path in localPath)

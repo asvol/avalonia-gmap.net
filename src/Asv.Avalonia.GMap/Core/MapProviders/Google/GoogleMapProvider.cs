@@ -264,10 +264,10 @@ namespace Asv.Avalonia.GMap
                 RouteUrlFormatGeoPoint,
                 language,
                 opt,
-                start.Lat,
-                start.Lng,
-                end.Lat,
-                end.Lng,
+                start.Latitude,
+                start.Longitude,
+                end.Latitude,
+                end.Longitude,
                 ServerAPIs);
         }
 
@@ -450,8 +450,8 @@ namespace Asv.Avalonia.GMap
             return string.Format(CultureInfo.InvariantCulture,
                 ReverseGeocoderUrlFormat,
                 ServerAPIs,
-                pt.Lat,
-                pt.Lng,
+                pt.Latitude,
+                pt.Longitude,
                 language);
         }
 
@@ -510,7 +510,7 @@ namespace Asv.Avalonia.GMap
                             {
                                 for (int i = 0; i < geoResult.results.Count; i++)
                                     pointList.Add(new GeoPoint(geoResult.results[i].geometry.location.lat,
-                                        geoResult.results[i].geometry.location.lng));
+                                        geoResult.results[i].geometry.location.lng,0));
                             }
                         }
                         else
@@ -835,10 +835,10 @@ namespace Asv.Avalonia.GMap
 
             return string.Format(CultureInfo.InvariantCulture,
                 DirectionUrlFormatPoint,
-                start.Lat,
-                start.Lng,
-                end.Lat,
-                end.Lng,
+                start.Latitude,
+                start.Longitude,
+                end.Latitude,
+                end.Longitude,
                 sensor.ToString().ToLower(),
                 language,
                 av,
@@ -881,14 +881,14 @@ namespace Asv.Avalonia.GMap
             {
                 wpLatLng += string.Format(CultureInfo.InvariantCulture,
                     i++ == 0 ? "{0},{1}" : "|{0},{1}",
-                    wp.Lat,
-                    wp.Lng);
+                    wp.Latitude,
+                    wp.Longitude);
             }
 
             return string.Format(CultureInfo.InvariantCulture,
                 DirectionUrlFormatWaypoint,
-                start.Lat,
-                start.Lng,
+                start.Latitude,
+                start.Longitude,
                 wpLatLng,
                 sensor.ToString().ToLower(),
                 language,
@@ -896,8 +896,8 @@ namespace Asv.Avalonia.GMap
                 mt,
                 wk,
                 ServerAPIs,
-                end.Lat,
-                end.Lng);
+                end.Latitude,
+                end.Longitude);
         }
 
         string MakeDirectionsUrl(string start, IEnumerable<string> wayPoints, string end, string language,
@@ -1012,14 +1012,14 @@ namespace Asv.Avalonia.GMap
                                     {
                                         direction.StartLocation =
                                             new GeoPoint(directionResult.routes[0].legs[0].start_location.lat,
-                                                directionResult.routes[0].legs[0].start_location.lng);
+                                                directionResult.routes[0].legs[0].start_location.lng,0);
                                     }
 
                                     if (directionResult.routes[0].legs[0].end_location != null)
                                     {
                                         direction.EndLocation =
                                             new GeoPoint(directionResult.routes[0].legs[0].end_location.lat,
-                                                directionResult.routes[0].legs[0].end_location.lng);
+                                                directionResult.routes[0].legs[0].end_location.lng, 0);
                                     }
 
                                     if (directionResult.routes[0].legs[0].start_address != null)
@@ -1058,7 +1058,7 @@ namespace Asv.Avalonia.GMap
                                         {
                                             step.StartLocation = new GeoPoint(directionResult.routes[0].legs[0].steps[i]
                                                 .start_location.lat, directionResult.routes[0].legs[0].steps[i]
-                                                .start_location.lng);
+                                                .start_location.lng,0);
 
                                         }
 
@@ -1067,7 +1067,7 @@ namespace Asv.Avalonia.GMap
                                             step.EndLocation =
                                                 new GeoPoint(
                                                     directionResult.routes[0].legs[0].steps[i].end_location.lat,
-                                                    directionResult.routes[0].legs[0].steps[i].end_location.lng);
+                                                    directionResult.routes[0].legs[0].steps[i].end_location.lng,0);
                                         }
 
                                         if (directionResult.routes[0].legs[0].steps[i].polyline != null &&
@@ -1132,7 +1132,7 @@ namespace Asv.Avalonia.GMap
 
             foreach (var item in points)
             {
-                pointstr += string.Format("{2}{0},{1}", item.Lat, item.Lng, pointstr == "" ? "" : "|");
+                pointstr += string.Format("{2}{0},{1}", item.Latitude, item.Longitude, pointstr == "" ? "" : "|");
             }
 
             return string.Format(RoadsUrlFormatStr, interpolate, pointstr, ServerAPIs);
@@ -1190,7 +1190,7 @@ namespace Asv.Avalonia.GMap
 
                             foreach (var item in roadsResult.snappedPoints)
                             {
-                                ret.Points.Add(new GeoPoint(item.location.latitude, item.location.longitude));
+                                ret.Points.Add(new GeoPoint(item.location.latitude, item.location.longitude,0));
                             }
 
                             ret.Status = RouteStatusCode.OK;

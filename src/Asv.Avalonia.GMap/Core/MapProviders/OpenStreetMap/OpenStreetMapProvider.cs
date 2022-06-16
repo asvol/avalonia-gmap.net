@@ -96,10 +96,10 @@ namespace Asv.Avalonia.GMap
         {
             return string.Format(CultureInfo.InvariantCulture,
                 RoutingUrlFormat,
-                start.Lat,
-                start.Lng,
-                end.Lat,
-                end.Lng,
+                start.Latitude,
+                start.Longitude,
+                end.Latitude,
+                end.Longitude,
                 travelType);
         }
 
@@ -159,7 +159,7 @@ namespace Asv.Avalonia.GMap
                                 {
                                     double lat = double.Parse(xy[1], CultureInfo.InvariantCulture);
                                     double lng = double.Parse(xy[0], CultureInfo.InvariantCulture);
-                                    ret.Points.Add(new GeoPoint(lat, lng));
+                                    ret.Points.Add(new GeoPoint(lat, lng,0));
                                 }
                             }
                         }
@@ -339,7 +339,7 @@ namespace Asv.Avalonia.GMap
 
         string MakeReverseGeocoderUrl(GeoPoint pt)
         {
-            return string.Format(CultureInfo.InvariantCulture, ReverseGeocoderUrlFormat, pt.Lat, pt.Lng);
+            return string.Format(CultureInfo.InvariantCulture, ReverseGeocoderUrlFormat, pt.Latitude, pt.Longitude);
         }
 
         GeoCoderStatusCode GetLatLngFromGeocoderUrl(string url, out List<GeoPoint> pointList)
@@ -402,7 +402,7 @@ namespace Asv.Avalonia.GMap
                                         if (nn != null)
                                         {
                                             double lng = double.Parse(nn.Value, CultureInfo.InvariantCulture);
-                                            pointList.Add(new GeoPoint(lat, lng));
+                                            pointList.Add(new GeoPoint(lat, lng,0));
                                         }
                                     }
                                 }

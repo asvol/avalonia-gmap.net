@@ -50,7 +50,7 @@ namespace Asv.Avalonia.GMap
 
         public static explicit operator GeoPoint(SizeLatLng size)
         {
-            return new GeoPoint(size.HeightLat, size.WidthLng);
+            return new GeoPoint(size.HeightLat, size.WidthLng,0);
         }
 
         public bool IsEmpty => WidthLng == 0d && HeightLat == 0d;

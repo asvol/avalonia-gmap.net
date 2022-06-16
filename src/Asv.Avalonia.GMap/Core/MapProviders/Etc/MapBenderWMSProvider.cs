@@ -76,10 +76,10 @@ namespace Asv.Avalonia.GMap
 
             string ret = string.Format(CultureInfo.InvariantCulture,
                 UrlFormat,
-                p1.Lng,
-                p1.Lat,
-                p2.Lng,
-                p2.Lat,
+                p1.Longitude,
+                p1.Latitude,
+                p2.Longitude,
+                p2.Latitude,
                 Projection.TileSize.Width,
                 Projection.TileSize.Height);
 

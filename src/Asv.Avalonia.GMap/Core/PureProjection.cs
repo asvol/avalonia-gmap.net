@@ -127,7 +127,7 @@ namespace Asv.Avalonia.GMap
         {
             if (useCache)
             {
-                var ret = GeoPoint.Zero;
+                var ret = GeoPoint.ZeroWithAlt;
                 if (!_fromPixelToLatLngCache[zoom].TryGetValue(p, out ret))
                 {
                     ret = FromPixelToLatLng(p.X, p.Y, zoom);
@@ -552,7 +552,7 @@ namespace Asv.Avalonia.GMap
                     lng += (result & 1) != 0 ? ~(result >> 1) : result >> 1;
                 }
 
-                path.Add(new GeoPoint(lat * 1e-5, lng * 1e-5));
+                path.Add(new GeoPoint(lat * 1e-5, lng * 1e-5,0));
             }
 
             return path;

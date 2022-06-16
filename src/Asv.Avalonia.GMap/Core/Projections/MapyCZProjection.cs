@@ -237,14 +237,14 @@ namespace Asv.Avalonia.GMap
 
         public override GeoPoint FromPixelToLatLng(long x, long y, int zoom)
         {
-            var ret = GeoPoint.Zero;
+            var ret = GeoPoint.ZeroWithAlt;
 
             var size = GetTileMatrixSizePixel(zoom);
 
             long oX = x << (20 - zoom);
             var oY = (size.Height - y) << (20 - zoom);
             var l = PPToWGS(oX, oY);
-            return new GeoPoint(Clip(l[0], MinLatitude, MaxLatitude), Clip(l[1], MinLongitude, MaxLongitude));
+            return new GeoPoint(Clip(l[0], MinLatitude, MaxLatitude), Clip(l[1], MinLongitude, MaxLongitude),0);
         }
 
         public override GSize GetTileMatrixSizeXY(int zoom)

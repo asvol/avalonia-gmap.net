@@ -110,10 +110,10 @@ namespace Asv.Avalonia.GMap
                 UrlFormat,
                 Key,
                 Version,
-                start.Lat,
-                start.Lng,
-                end.Lat,
-                end.Lng,
+                start.Latitude,
+                start.Longitude,
+                end.Latitude,
+                end.Longitude,
                 travelType,
                 language,
                 units);
@@ -217,7 +217,7 @@ namespace Asv.Avalonia.GMap
                         {
                             double lat = double.Parse(w.Attributes["lat"].InnerText, CultureInfo.InvariantCulture);
                             double lng = double.Parse(w.Attributes["lon"].InnerText, CultureInfo.InvariantCulture);
-                            points.Add(new GeoPoint(lat, lng));
+                            points.Add(new GeoPoint(lat, lng,0));
                         }
                     }
                 }
@@ -455,7 +455,7 @@ namespace Asv.Avalonia.GMap
                         {
                             double lat = double.Parse(w.Attributes["lat"].InnerText, CultureInfo.InvariantCulture);
                             double lng = double.Parse(w.Attributes["lon"].InnerText, CultureInfo.InvariantCulture);
-                            direction.Route.Add(new GeoPoint(lat, lng));
+                            direction.Route.Add(new GeoPoint(lat, lng,0));
                         }
 
                         if (direction.Route.Count > 0)
@@ -507,7 +507,7 @@ namespace Asv.Avalonia.GMap
                                 double lat = double.Parse(w.Attributes["lat"].InnerText, CultureInfo.InvariantCulture);
                                 double lng = double.Parse(w.Attributes["lon"].InnerText, CultureInfo.InvariantCulture);
 
-                                step.StartLocation = new GeoPoint(lat, lng);
+                                step.StartLocation = new GeoPoint(lat, lng,0);
 
                                 XmlNode nn = w.SelectSingleNode("sm:desc", xmlnsManager);
                                 if (nn != null)
