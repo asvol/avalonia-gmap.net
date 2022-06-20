@@ -160,8 +160,8 @@ namespace Asv.Avalonia.GMap
         {
             return string.Format(CultureInfo.InvariantCulture,
                 ReverseGeocoderUrlFormat,
-                pt.Lat,
-                pt.Lng,
+                pt.Latitude,
+                pt.Longitude,
                 AppId,
                 !string.IsNullOrEmpty(LanguageStr) ? "&locale=" + LanguageStr : "");
         }
@@ -229,7 +229,7 @@ namespace Asv.Avalonia.GMap
                                             if (nn != null)
                                             {
                                                 double lng = double.Parse(nn.InnerText, CultureInfo.InvariantCulture);
-                                                pointList.Add(new GeoPoint(lat, lng));
+                                                pointList.Add(new GeoPoint(lat, lng,0));
                                             }
                                         }
                                     }

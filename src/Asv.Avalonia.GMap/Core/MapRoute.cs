@@ -162,23 +162,23 @@ namespace Asv.Avalonia.GMap
         {
             // Lineal function formula => y = mxb (y is lat, x is lng).
             // Member m.
-            double m = (start.Lat - to.Lat) / (start.Lng - to.Lng);
+            double m = (start.Latitude - to.Latitude) / (start.Longitude - to.Longitude);
 
             // Obtain of b => b = y-mx
-            double b = -(m * start.Lng - start.Lat);
+            double b = -(m * start.Longitude - start.Latitude);
 
             // Possible points of Lat and Lng based on formula replacement (formulaLat and formulaLng).
             // Lat = m*Lngb
-            double formulaLat = m * point.Lng + b;
+            double formulaLat = m * point.Longitude + b;
 
             // Lat = m*Lngb => (Lat-b)/m=Lng 
-            double formulaLng = (point.Lat - b) / m;
+            double formulaLng = (point.Latitude - b) / m;
 
             // Possibles distances: One from the given point.Lat, and other from the point.Lng.
             double distance1 =
-                GMapProviders.EmptyProvider.Projection.GetDistance(new GeoPoint(point.Lat, formulaLng), point);
+                GMapProviders.EmptyProvider.Projection.GetDistance(new GeoPoint(point.Latitude, formulaLng,0), point);
             double distance2 =
-                GMapProviders.EmptyProvider.Projection.GetDistance(new GeoPoint(formulaLat, point.Lng), point);
+                GMapProviders.EmptyProvider.Projection.GetDistance(new GeoPoint(formulaLat, point.Longitude,0), point);
 
             // Min of the distances.
             double distance = distance1 <= distance2 ? distance1 : distance2;

@@ -261,7 +261,7 @@ namespace Asv.Avalonia.GMap
             int mmaxZoom = GetMaxZoomToFitRect(rect);
             if (mmaxZoom > 0)
             {
-                var center = new GeoPoint(rect.Lat - rect.HeightLat / 2, rect.Lng + rect.WidthLng / 2);
+                var center = new GeoPoint(rect.Lat- rect.HeightLat / 2, rect.Lng + rect.WidthLng / 2,0);
                 Position = center;
 
                 if (mmaxZoom > MaxZoom)

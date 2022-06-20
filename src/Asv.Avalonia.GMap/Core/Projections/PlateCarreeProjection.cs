@@ -73,7 +73,7 @@ namespace Asv.Avalonia.GMap
 
             double scale = 360.0 / mapSizeX;
 
-            return new GeoPoint(90 - y * scale, x * scale - 180);
+            return new GeoPoint(90 - y * scale, x * scale - 180,0);
         }
 
         public override GSize GetTileMatrixMaxXY(int zoom)

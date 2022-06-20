@@ -39,6 +39,7 @@ namespace Asv.Avalonia.GMap
         static MapView()
         {
             MapImageProxy.Enable();
+            
             LocationProperty.Changed.Subscribe(_=>UpdateLocalPosition(_.Sender));
             OffsetXProperty.Changed.Subscribe(_ => UpdateLocalPosition(_.Sender));
             OffsetYProperty.Changed.Subscribe(_ => UpdateLocalPosition(_.Sender));
@@ -88,7 +89,7 @@ namespace Asv.Avalonia.GMap
             MinZoom = _core.MinZoom;
             MaxZoom = _core.MaxZoom;
             MapProvider = GMapProviders.BingHybridMap;
-            Position = new GeoPoint(55.1644, 61.4368);
+            Position = new GeoPoint(55.1644, 61.4368,0);
             if (Design.IsDesignMode)
             {
                 
@@ -142,7 +143,7 @@ namespace Asv.Avalonia.GMap
         public static IList<GeoPoint> GetPath(IAvaloniaObject element) => element.GetValue(PathProperty);
 
         public static readonly AttachedProperty<GeoPoint> LocationProperty =
-            AvaloniaProperty.RegisterAttached<MapView, AvaloniaObject, GeoPoint>("Location", GeoPoint.Zero);
+            AvaloniaProperty.RegisterAttached<MapView, AvaloniaObject, GeoPoint>("Location", GeoPoint.ZeroWithAlt);
         public static void SetLocation(IAvaloniaObject element, GeoPoint value) => element.SetValue(LocationProperty, value);
         public static GeoPoint GetLocation(IAvaloniaObject element) => element.GetValue(LocationProperty);
 
@@ -508,7 +509,7 @@ namespace Asv.Avalonia.GMap
 
         public static readonly DirectProperty<MapView, GeoPoint> PositionProperty =
             AvaloniaProperty.RegisterDirect<MapView, GeoPoint>(nameof(Position), o => o.Position, (o, v) => o.Position = v);
-        private GeoPoint _position = new GeoPoint(55.1644, 61.4368);
+        private GeoPoint _position = new GeoPoint(55.1644, 61.4368,0);
         public GeoPoint Position
         {
             get => _position;
@@ -558,7 +559,7 @@ namespace Asv.Avalonia.GMap
                     var p = FromLocalToLatLng(0, 0);
                     var p2 = FromLocalToLatLng((int)Bounds.Width, (int)Bounds.Height);
 
-                    return RectLatLng.FromLTRB(p.Lng, p.Lat, p2.Lng, p2.Lat);
+                    return RectLatLng.FromLTRB(p.Longitude, p.Latitude, p2.Longitude, p2.Latitude);
                 }
 
                 return RectLatLng.Empty;
@@ -594,7 +595,7 @@ namespace Asv.Avalonia.GMap
             if (viewarea != RectLatLng.Empty)
             {
                 Position = new GeoPoint(viewarea.Lat - viewarea.HeightLat / 2,
-                    viewarea.Lng + viewarea.WidthLng / 2);
+                    viewarea.Lng + viewarea.WidthLng / 2,0);
             }
             else
             {
@@ -815,6 +816,11 @@ namespace Asv.Avalonia.GMap
                         _core.BeginDrag(_core.MouseDown);
                     }
                 }
+            }
+
+            if (_core.IsDragging && (e.KeyModifiers & KeyModifiers.Control)!=0)
+            {
+                _core.IsDragging = false;
             }
 
             if (_core.IsDragging)

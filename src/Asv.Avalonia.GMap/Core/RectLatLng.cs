@@ -38,7 +38,7 @@ namespace Asv.Avalonia.GMap
         {
             get
             {
-                return new GeoPoint(Lat, Lng);
+                return new GeoPoint(Lat, Lng,0);
             }
             set
             {
@@ -47,9 +47,9 @@ namespace Asv.Avalonia.GMap
             }
         }
 
-        public GeoPoint LocationRightBottom => new(Lat - HeightLat, Lng + WidthLng);
+        public GeoPoint LocationRightBottom => new(Lat - HeightLat, Lng + WidthLng,0);
 
-        public GeoPoint LocationMiddle => new(Lat - HeightLat / 2, Lng + WidthLng / 2);
+        public GeoPoint LocationMiddle => new(Lat - HeightLat / 2, Lng + WidthLng / 2,0);
 
         public SizeLatLng Size
         {

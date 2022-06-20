@@ -474,9 +474,9 @@ namespace Asv.Avalonia.GMap
                 RouteUrlFormatGeoPoint,
                 mode,
                 start.Latitude,
-                start.Lng,
-                end.Lat,
-                end.Lng,
+                start.Longitude,
+                end.Latitude,
+                end.Longitude,
                 addition,
                 SessionId);
         }
@@ -553,7 +553,7 @@ namespace Asv.Avalonia.GMap
                                     XmlNode longitude = xno["Longitude"];
                                     points.Add(new GeoPoint(
                                         double.Parse(latitude.InnerText, CultureInfo.InvariantCulture),
-                                        double.Parse(longitude.InnerText, CultureInfo.InvariantCulture)));
+                                        double.Parse(longitude.InnerText, CultureInfo.InvariantCulture),0));
                                 }
                             }
 
@@ -726,7 +726,7 @@ namespace Asv.Avalonia.GMap
                                     XmlNode longitude = xno["Point"]["Longitude"];
                                     pointList.Add(new GeoPoint(
                                         Double.Parse(latitude.InnerText, CultureInfo.InvariantCulture),
-                                        Double.Parse(longitude.InnerText, CultureInfo.InvariantCulture)));
+                                        Double.Parse(longitude.InnerText, CultureInfo.InvariantCulture),0));
                                 }
 
                                 if (pointList.Count > 0)

@@ -103,7 +103,7 @@ namespace Asv.Avalonia.GMap
         public override GeoPoint FromPixelToLatLng(long x, long y, int zoom)
         {
             double res = GetTileMatrixResolution(zoom);
-            return new GeoPoint(orignY - y * res, x * res + orignX);
+            return new GeoPoint(orignY - y * res, x * res + orignX,0);
         }
 
         public static double GetTileMatrixResolution(int zoom)

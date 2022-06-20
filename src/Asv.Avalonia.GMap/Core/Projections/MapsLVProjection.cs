@@ -87,7 +87,7 @@ namespace Asv.Avalonia.GMap
             lks = MTD11(lks);
             lks = DTM10(lks);
             lks = MTD10(lks);
-            var ret = new GeoPoint(Clip(lks[1], MinLatitude, MaxLatitude), Clip(lks[0], MinLongitude, MaxLongitude));
+            var ret = new GeoPoint(Clip(lks[1], MinLatitude, MaxLatitude), Clip(lks[0], MinLongitude, MaxLongitude),0);
             return ret;
         }
 
