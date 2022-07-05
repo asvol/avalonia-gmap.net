@@ -319,7 +319,7 @@ namespace Asv.Avalonia.GMap
                         _cacheEngine = null;
                         _cacheEngine = new Thread(CacheEngineLoop);
                         _cacheEngine.Name = "CacheEngine";
-                        _cacheEngine.IsBackground = false;
+                        _cacheEngine.IsBackground = true;
                         _cacheEngine.Priority = ThreadPriority.Lowest;
 
                         _abortCacheLoop = false;

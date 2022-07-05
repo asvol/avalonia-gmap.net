@@ -838,7 +838,7 @@ namespace Asv.Avalonia.GMap
 
                                     Logger.Trace(ctid + ": exit");
                                 },
-                                TaskCreationOptions.LongRunning));
+                                TaskCreationOptions.LongRunning | TaskCreationOptions.DenyChildAttach ));
                         }
                     }
                 }
