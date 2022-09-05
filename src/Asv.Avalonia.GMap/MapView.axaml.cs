@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using System.Threading;
 using Asv.Tools;
 using Avalonia;
 using Avalonia.Collections;
@@ -524,11 +525,20 @@ namespace Asv.Avalonia.GMap
 
         private void OnPositionChanged()
         {
-            _core.Position = Position;
-            if (_core.IsStarted)
+            if (Interlocked.CompareExchange(ref _positionUpdateCiclicUpdateFlag,0,1) !=0) return;
+            try
             {
-                ForceUpdateOverlays();
+                _core.Position = Position;
+                if (_core.IsStarted)
+                {
+                    ForceUpdateOverlays();
+                }
             }
+            finally
+            {
+                Interlocked.Exchange(ref _positionUpdateCiclicUpdateFlag, 0);
+            }
+            
         }
 
         #endregion
@@ -1007,6 +1017,8 @@ namespace Asv.Avalonia.GMap
 
         private Cursor _oldCursor;
         private bool _disablePointerActions = false;
+        private double _positionUpdateCiclicUpdateFlag;
+
         private void DisableDialogMode()
         {
             Observable.Timer(TimeSpan.FromSeconds(1)).Subscribe(_=>_disablePointerActions = false).DisposeWith(Disposable);
